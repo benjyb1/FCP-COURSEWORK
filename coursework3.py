@@ -67,7 +67,23 @@ def get_squares(grid, n_rows, n_cols):
                 square += line
             squares.append(square)
 
-    return (squares)
+    return squares
+
+# Defining a function that eliminates values already in the box's row, grid or square
+def eliminate_values(grid, row, col, n, n_rows, n_cols):
+    row_values = [grid[row]]
+    col_values = [grid[i][col] for i in range(n)]
+    square_values = get_squares(grid, n_rows, n_cols)
+    possible_values = [range(1,n+1)]
+    values_present_row = possible_values.append(row_values)
+    values_present_col = possible_values.append(col_values)
+    values_present_square = possible_values.append(square_values)
+    for 
+    if values_present_name.count
+
+
+
+
 
 
 # To complete the first assignment, please write the code for the following function
@@ -142,6 +158,7 @@ def recursive_solve(grid, n_rows, n_cols):
             return None
     else:
         row, col = empty
+
 
     # Loop through possible values
     for i in range(1, n + 1):

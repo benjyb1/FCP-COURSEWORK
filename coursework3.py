@@ -75,11 +75,14 @@ def eliminate_values(grid, row, col, n, n_rows, n_cols):
     col_values = [grid[i][col] for i in range(n)]
     square_values = get_squares(grid, n_rows, n_cols)
     possible_values = [range(1,n+1)]
-    values_present_row = possible_values.append(row_values)
-    values_present_col = possible_values.append(col_values)
-    values_present_square = possible_values.append(square_values)
-    for 
-    if values_present_name.count
+    values_present = row_values + col_values + square_values
+    possible_values.append(values_present)
+    for element in possible_values:
+        if possible_values.count(element) > 1:
+            possible_values.remove(element)
+            return possible_values
+
+
 
 
 

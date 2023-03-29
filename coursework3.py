@@ -69,24 +69,26 @@ def get_squares(grid, n_rows, n_cols):
 
     return squares
 
+
 # Defining a function that eliminates values already in the box's row, grid or square
 def eliminate_values(grid, row, col, n, n_rows, n_cols):
+    # Find values already present in the sudoku, create empty list p_values
+    p_values = []
     row_values = [grid[row]]
     col_values = [grid[i][col] for i in range(n)]
     square_values = get_squares(grid, n_rows, n_cols)
-    possible_values = [range(1,n+1)]
+    # All values 1 to n+1 are possible before we check the rows, columns and squares
+    possible_values = [range(1, n + 1)]
+    # Put all values present into a single list
     values_present = row_values + col_values + square_values
+    # Also put all possible values 1 to n+1 into the list
     possible_values.append(values_present)
+    # if the number is in the list more than once, remove it from the list
     for element in possible_values:
-        if possible_values.count(element) > 1:
-            possible_values.remove(element)
-            return possible_values
+        if possible_values.count(element) == 1:
+            p_values.append(element)
 
-
-
-
-
-
+    return p_values
 
 
 # To complete the first assignment, please write the code for the following function
@@ -145,6 +147,8 @@ def recursive_solve(grid, n_rows, n_cols):
     args: grid, n_rows, n_cols
     return: A solved grid (as a nested list), or None
     '''
+    # Setting p_value as an empty list again
+    p_values = []
 
     # N is the maximum integer considered in this board
     n = n_rows * n_cols
@@ -162,12 +166,14 @@ def recursive_solve(grid, n_rows, n_cols):
     else:
         row, col = empty
 
+        eliminate_values(grid, row, col, n, n_rows, n_cols)
+        return p_values
 
     # Loop through possible values
-    for i in range(1, n + 1):
+    for value in p_values:
 
         # Place the value into the grid
-        grid[row][col] = i
+        grid[row][col] = value
         # Recursively solve the grid
         ans = recursive_solve(grid, n_rows, n_cols)
         # If we've found a solution, return it
@@ -182,44 +188,6 @@ def recursive_solve(grid, n_rows, n_cols):
     return None
 
 
-def random_solve(grid, n_rows, n_cols, max_tries=50000):
-    '''
-    This function uses random trial and error to solve a Sudoku grid
-
-    args: grid, n_rows, n_cols, max_tries
-    return: A solved grid (as a nested list), or the original grid if no solution is found
-    '''
-
-    for i in range(max_tries):
-        possible_solution = fill_board_randomly(grid, n_rows, n_cols)
-        if check_solution(possible_solution, n_rows, n_cols):
-            return possible_solution
-
-    return grid
-
-
-def fill_board_randomly(grid, n_rows, n_cols):
-    '''
-    This function will fill an unsolved Sudoku grid with random numbers
-
-    args: grid, n_rows, n_cols
-    return: A grid with all empty values filled in
-    '''
-    n = n_rows * n_cols
-    # Make a copy of the original grid
-    filled_grid = copy.deepcopy(grid)
-
-    # Loop through the rows
-    for i in range(len(grid)):
-        # Loop through the columns
-        for j in range(len(grid[0])):
-            # If we find a zero, fill it in with a random integer
-            if grid[i][j] == 0:
-                filled_grid[i][j] = random.randint(1, n)
-
-    return filled_grid
-
-
 def solve(grid, n_rows, n_cols):
     '''
     Solve function for Sudoku coursework.
@@ -229,6 +197,8 @@ def solve(grid, n_rows, n_cols):
     # return random_solve(grid, n_rows, n_cols)
     return recursive_solve(grid, n_rows, n_cols)
 
+
+recursive_solve(grid1, 2, 2)
 
 '''
 ===================================

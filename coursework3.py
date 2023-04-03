@@ -74,22 +74,37 @@ def get_squares(grid, n_rows, n_cols):
 def eliminate_values(grid, row, col, n, n_rows, n_cols):
     # Find values already present in the sudoku, create empty list p_values
     p_values = []
-    row_values = [grid[row]]
+    row_values = grid[row]
     col_values = [grid[i][col] for i in range(n)]
+    '''
+    There is a problem where i can't find how to isolate the one square were looking for, for example in grid1
+    we want the first 'square', as in small grid.
+    I think we need to find a way to be able to get from our coordinates of the 0 to the subgrid it is in, and 
+    then we would have the whole picture in terms of what values it can't be.'''
+    
     square_values = get_squares(grid, n_rows, n_cols)
+
     # All values 1 to n+1 are possible before we check the rows, columns and squares
-    possible_values = [range(1, n + 1)]
+    possible_values=[]
+    possible_values.append([i for i in range(1,n+1)])
     # Put all values present into a single list
-    values_present = row_values + col_values + square_values
+    '''Using a set means that there can be no duplicate values, which just makes things cleaner'''
+    values_present = row_values + col_values
     # Also put all possible values 1 to n+1 into the list
+    '''Would we not want to take away the values present from the possible values list so that were just left
+    with the actual possible values?'''
     possible_values.append(values_present)
+    # The extend values just takes a list of nested lists and returns a normal list
+    final_values=[]
+    for sublist in possible_values:
+        final_values.extend(sublist)
     # if the number is in the list more than once, remove it from the list
-    for element in possible_values:
-        if possible_values.count(element) == 1:
+    for element in final_values:
+        if final_values.count(element) <2:
             p_values.append(element)
 
     return p_values
-
+print('Example grid',eliminate_values(grid1, 0, 1, 4, 2, 2))
 
 # To complete the first assignment, please write the code for the following function
 def check_solution(grid, n_rows, n_cols):
@@ -198,7 +213,6 @@ def solve(grid, n_rows, n_cols):
     return recursive_solve(grid, n_rows, n_cols)
 
 
-recursive_solve(grid1, 2, 2)
 
 '''
 ===================================
@@ -230,5 +244,5 @@ def main():
     print("Test script complete, Total points: %d" % points)
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

@@ -77,7 +77,7 @@ def eliminate_values(grid, row, col, n, n_rows, n_cols):
     row_values = grid[row]
     col_values = [grid[i][col] for i in range(n)]
     '''
-    There is a problem where i can't find how to isolate the one square were looking for, for example in grid1
+    There is a problem where i can't find how to isolate the one square we're looking for, for example in grid1
     we want the first 'square', as in small grid.
     I think we need to find a way to be able to get from our coordinates of the 0 to the subgrid it is in, and 
     then we would have the whole picture in terms of what values it can't be.'''
@@ -244,5 +244,5 @@ def main():
     print("Test script complete, Total points: %d" % points)
 
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

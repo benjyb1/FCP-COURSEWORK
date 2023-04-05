@@ -88,11 +88,8 @@ def eliminate_values(grid, row, col, n, n_rows, n_cols):
     possible_values=[]
     possible_values.append([i for i in range(1,n+1)])
     # Put all values present into a single list
-    '''Using a set means that there can be no duplicate values, which just makes things cleaner'''
     values_present = row_values + col_values
     # Also put all possible values 1 to n+1 into the list
-    '''Would we not want to take away the values present from the possible values list so that were just left
-    with the actual possible values?'''
     possible_values.append(values_present)
     # The extend values just takes a list of nested lists and returns a normal list
     final_values=[]
@@ -100,11 +97,28 @@ def eliminate_values(grid, row, col, n, n_rows, n_cols):
         final_values.extend(sublist)
     # if the number is in the list more than once, remove it from the list
     for element in final_values:
-        if final_values.count(element) <2:
+        if final_values.count(element) ==1:
             p_values.append(element)
 
     return p_values
-print('Example grid',eliminate_values(grid1, 0, 1, 4, 2, 2))
+# print('Example grid',eliminate_values(grid6, 1, 2, 6, 2, 3))
+
+'''This is a function i started to get all the indices of all the 0's in each grid, i realise its kinda similar 
+to find_empty but a bit different. It doesn't actually work for some reason and will return the same coordinate multiple 
+times on the bigger grids.'
+# def use_possible_values(grid,n_rows,n_cols):
+#     n=n_rows*n_cols
+#     zeros_list=[]
+
+#     for row in grid:
+#         for col in row:
+#             if col==0:
+#                 row_index,col_index=grid.index(row),row.index(col)
+#                 zeros_list.append((row_index,col_index))
+      
+#     return zeros_list
+# print(use_possible_values(grid4,2,2))
+
 
 # To complete the first assignment, please write the code for the following function
 def check_solution(grid, n_rows, n_cols):
@@ -244,5 +258,5 @@ def main():
     print("Test script complete, Total points: %d" % points)
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

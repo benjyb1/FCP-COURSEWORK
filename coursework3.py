@@ -71,7 +71,8 @@ def get_squares(grid, n_rows, n_cols):
 
 
 # Defining a function that eliminates values already in the box's row, grid or square
-def eliminate_values(grid, row, col, n, n_rows, n_cols):
+'''BTW ive renamed this from elimnates_values to possible_values for clarity'''
+def possible_values(grid, row, col, n, n_rows, n_cols):
     # Find values already present in the sudoku, create empty list p_values
     p_values = []
     row_values = grid[row]
@@ -99,27 +100,40 @@ def eliminate_values(grid, row, col, n, n_rows, n_cols):
     for element in final_values:
         if final_values.count(element) ==1:
             p_values.append(element)
-
+        
     return p_values
-# print('Example grid',eliminate_values(grid6, 1, 2, 6, 2, 3))
-
-'''This is a function i started to get all the indices of all the 0's in each grid, i realise its kinda similar 
-to find_empty but a bit different. It doesn't actually work for some reason and will return the same coordinate multiple 
-times on the bigger grids.'
-# def use_possible_values(grid,n_rows,n_cols):
-#     n=n_rows*n_cols
-#     zeros_list=[]
-
-#     for row in grid:
-#         for col in row:
-#             if col==0:
-#                 row_index,col_index=grid.index(row),row.index(col)
-#                 zeros_list.append((row_index,col_index))
-      
-#     return zeros_list
-# print(use_possible_values(grid4,2,2))
 
 
+'''This function will return the coordinates of the positions with the lowest amount of possibilites
+It outputs a list in the form of: [possible value(s)],coordiantes(x,y)
+'''
+
+def find_lowest_possibilites(grid,n,n_rows,n_cols):
+    possible_list=[]
+    for i in range(len(zeros_index(grid))):
+        row=zeros_index(grid)[i][0]
+        col=zeros_index(grid)[i][1]
+        # Finding the coordinates of the 0's
+        possible_list.append((possible_values(grid,row,col,n,n_rows,n_cols),row,col))
+        # Adding to the list the possible values, and the row and column theryre in
+    possible_list=sorted(possible_list)
+    return possible_list
+
+
+         
+
+'''This function outputs the coordinates of all the zeros in a grid.'''
+def zeros_index(grid):
+    zeros_list=[]
+    for row_index, row in enumerate(grid):
+        for col_index, col in enumerate(row):
+            if col == 0:
+                zeros_list.append((row_index, col_index))
+     # The enumerate function just means we get the correct index as before it wasn't working
+     
+    return zeros_list
+
+ 
 # To complete the first assignment, please write the code for the following function
 def check_solution(grid, n_rows, n_cols):
     '''
@@ -183,7 +197,7 @@ def recursive_solve(grid, n_rows, n_cols):
     n = n_rows * n_cols
     # Find an empty place in the grid
     empty = find_empty(grid)
-
+    
     # If there's no empty places left, check if we've found a solution
     if not empty:
         # If the solution is correct, return it.
@@ -195,8 +209,15 @@ def recursive_solve(grid, n_rows, n_cols):
     else:
         row, col = empty
 
-        eliminate_values(grid, row, col, n, n_rows, n_cols)
+        p_values.append(possible_values(grid, row, col, n, n_rows, n_cols))
         return p_values
+
+    '''For some reason, whatever you put after this line doesnt get read, 
+    eg the print('hello') never comes up???
+    This implies that all the code that is meant to replace the number isnt being read
+    '''
+    
+    print('hello')
 
     # Loop through possible values
     for value in p_values:
@@ -258,5 +279,5 @@ def main():
     print("Test script complete, Total points: %d" % points)
 
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

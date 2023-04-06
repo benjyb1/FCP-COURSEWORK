@@ -48,20 +48,20 @@ DO NOT CHANGE CODE ABOVE THIS LINE
 ===================================
 '''
 import sys
-
 print(sys.argv)  # Prints the command line arguments as items in a list ['filename.py', 'flag']
-if len(sys.argv) == 3:  # Check there are three command line arguments (the filename and either 'hint' 'number' or 'INPUT' 'OUTPUT')
+explain=False
+for i in sys.argv:
+    if i == '-explain':
+        explain=True
+
+
+if len(sys.argv) == 3:# Check there are three command line arguments (the filename and either 'hint' 'number' or 'INPUT' 'OUTPUT')
     flag = sys.argv[1]  # Assign the second command line argument to 'flag'
     number = sys.argv[2]  # Assign the third command line argument to 'number'
     print(number)  # Printing the number entered after 'hint' by the user in terminal
     number = int(number)  # Changing the number's type from string to integer
     #print(type(number))
     print(flag)  # Printing the flag entered by the user in terminal
-
-
-
-
-
 
 
 def check_section(section, n):
@@ -125,17 +125,6 @@ def possible_values(grid, row, col, n, n_rows, n_cols):
             p_values.append(element)
     return p_values
 
-print(possible_values(grid5, 2,2,4,2,2))
-'''This function outputs the coordinates of all the zeros in a grid.'''
-def zeros_index(grid):
-    zeros_list=[]
-    for row_index, row in enumerate(grid):
-        for col_index, col in enumerate(row):
-            if col == 0:
-                zeros_list.append((row_index, col_index))
-     # The enumerate function just means we get the correct index as before it wasn't working
-     
-    return zeros_list
 
 '''This function will return the coordinates of the positions with the lowest amount of possibilites
 It outputs a list in the form of: [possible value(s)],coordiantes(x,y)
@@ -182,7 +171,6 @@ def check_solution(grid, n_rows, n_cols):
 
     return True
 
-
 def find_empty(grid):
     '''
     This function returns the index (i, j) to the first zero element in a sudoku grid
@@ -200,7 +188,6 @@ def find_empty(grid):
 
     return None
 
-
 def recursive_solve(grid, n_rows, n_cols):
     '''
     This function uses recursion to exhaustively search all possible solutions to a grid
@@ -209,42 +196,42 @@ def recursive_solve(grid, n_rows, n_cols):
     args: grid, n_rows, n_cols
     return: A solved grid (as a nested list), or None
     '''
-    # Setting p_value as an empty list again
-
-
+    # Using the current_grid variable so the original grids aren't changed
+    # The copy.deepcopy allows for nested lists to be fully copied.
+    current_grid=copy.deepcopy(grid)
     # N is the maximum integer considered in this board
+    
     n = n_rows * n_cols
     # Find an empty place in the grid
-    empty = find_empty(grid)
-    
+    empty = find_empty(current_grid)
     # If there's no empty places left, check if we've found a solution
     if not empty:
         # If the solution is correct, return it.
-        if check_solution(grid, n_rows, n_cols):
-            return grid
+        if check_solution(current_grid, n_rows, n_cols):
+            return current_grid
         else:
             # If the solution is incorrect, return None
             return None
     else:
         row, col = empty
-        p_values=possible_values(grid, row, col, n, n_rows, n_cols)
+        p_values=possible_values(current_grid, row, col, n, n_rows, n_cols)
         
-    # Going through only the possible values
-    for value in p_values:
+        # Going through only the possible values
+        for value in p_values:
 
-   			#Place the value into the grid
-   			grid[row][col] = value
-   			#Recursively solve the grid
-   			ans = recursive_solve(grid, n_rows, n_cols)
-   			#If we've found a solution, return it
-   			if ans:
-   				return ans 
+            # Place the value into the grid
+            current_grid[row][col] = value
+            # Recursively solve the grid
+            ans = recursive_solve(current_grid, n_rows, n_cols)
+            # If we've found a solution, return it
+            if ans:
+                return ans 
 
-   			#If we couldn't find a solution, that must mean this value is incorrect.
-   			#Reset the grid for the next iteration of the loop
-   			grid[row][col] = 0 
-    # If we get here, we've tried all possible values. Return none to indicate the previous value is incorrect.
-    return None
+            # If we couldn't find a solution, that must mean this value is incorrect.
+            # Reset the grid for the next iteration of the loop
+            current_grid[row][col] = 0 
+        # If we get here, we've tried all possible values. Return none to indicate the previous value is incorrect.
+        return None
 
 
 def solve(grid, n_rows, n_cols):
@@ -257,12 +244,48 @@ def solve(grid, n_rows, n_cols):
     return recursive_solve(grid, n_rows, n_cols)
 
 
+def zeros_index(grid):
+    '''This function outputs the coordinates of all the zeros in a grid.
+    args: grid, the number of rows, number of columns
+    returns: a list of the coordinates of all where the 0s in the grid lie
+    '''
+    zeros_list=[]
+    for row_index, row in enumerate(grid):
+        for col_index, col in enumerate(row):
+            # The enumerate function pairs the entry with an ascending number
+            if col == 0:
+                zeros_list.append((row_index, col_index))
+     
+    return zeros_list
+
+
+def flag_explain(grid,ans):
+    '''Function that relates to the -explain flag.
+    args: the inital grid, the solved grid
+    return: An explanation for what number to replace each 0 with
+    '''
+    # Output a list of where the 0s are
+    zeros_coords=zeros_index(grid)
+    explained=[]
+    # For each zero coordinate find the corresponding number in the ans grid
+    for coord in zeros_coords:
+        row=coord[0]
+        col=coord[1]
+        answer=ans[row][col]
+        explained.append(f'Put {answer} in location ({row}, {col})')
+    return explained
+
+# If the -explain flag is triggered, output the instructions for each grid
+if explain:
+    for i in range(len(grids)):
+        print('For grid[{}]: {}'.format(i+1, flag_explain(grids[i][0], recursive_solve(grids[i][0], grids[i][1], grids[i][2]))))
 
 '''
 ===================================
 DO NOT CHANGE CODE BELOW THIS LINE
 ===================================
 '''
+
 
 
 def main():
@@ -287,6 +310,5 @@ def main():
     print("====================================")
     print("Test script complete, Total points: %d" % points)
 
-
 if __name__ == "__main__":
-    main()
+       main()

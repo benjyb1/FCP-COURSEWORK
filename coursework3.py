@@ -83,7 +83,7 @@ def get_subgrid(row,col):
     return subgrid
 
 
-# Defining a function that eliminates values already in the box's row, grid or square
+# Defining a function that outputs the list of possible values left for any coordinate
 '''BTW ive renamed this from elimnates_values to possible_values for clarity'''
 def possible_values(grid, row, col, n, n_rows, n_cols):
     # Find values already present in the sudoku, create empty list p_values
@@ -110,7 +110,18 @@ def possible_values(grid, row, col, n, n_rows, n_cols):
             p_values.append(element)
         
     return p_values
-print(possible_values(grid1, 0, 1, 4,2,2))
+
+
+'''This function outputs the coordinates of all the zeros in a grid.'''
+def zeros_index(grid):
+    zeros_list=[]
+    for row_index, row in enumerate(grid):
+        for col_index, col in enumerate(row):
+            if col == 0:
+                zeros_list.append((row_index, col_index))
+     # The enumerate function just means we get the correct index as before it wasn't working
+     
+    return zeros_list
 
 '''This function will return the coordinates of the positions with the lowest amount of possibilites
 It outputs a list in the form of: [possible value(s)],coordiantes(x,y)
@@ -126,20 +137,6 @@ def find_lowest_possibilites(grid,n,n_rows,n_cols):
         # Adding to the list the possible values, and the row and column theryre in
     possible_list=sorted(possible_list)
     return possible_list
-
-
-         
-
-'''This function outputs the coordinates of all the zeros in a grid.'''
-def zeros_index(grid):
-    zeros_list=[]
-    for row_index, row in enumerate(grid):
-        for col_index, col in enumerate(row):
-            if col == 0:
-                zeros_list.append((row_index, col_index))
-     # The enumerate function just means we get the correct index as before it wasn't working
-     
-    return zeros_list
 
  
 # To complete the first assignment, please write the code for the following function
@@ -216,11 +213,12 @@ def recursive_solve(grid, n_rows, n_cols):
             return None
     else:
         row, col = empty
+        p_values.append(possible_values(grid, row, col, n, n_rows, n_cols))
         return p_values
     
 
     '''For some reason, whatever you put after this line doesnt get read, 
-    eg the print('hello') never comes up???
+    eg the print('hello') never comes up?
     This implies that all the code that is meant to replace the number isnt being read
     '''
     
@@ -286,5 +284,5 @@ def main():
     print("Test script complete, Total points: %d" % points)
 
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

@@ -108,10 +108,9 @@ def possible_values(grid, row, col, n, n_rows, n_cols):
     for element in final_values:
         if final_values.count(element) ==1:
             p_values.append(element)
-        
     return p_values
 
-
+print(possible_values(grid5, 2,2,4,2,2))
 '''This function outputs the coordinates of all the zeros in a grid.'''
 def zeros_index(grid):
     zeros_list=[]
@@ -136,9 +135,9 @@ def find_lowest_possibilites(grid,n,n_rows,n_cols):
         possible_list.append((possible_values(grid,row,col,n,n_rows,n_cols),row,col))
         # Adding to the list the possible values, and the row and column theryre in
     possible_list=sorted(possible_list)
+    
     return possible_list
 
- 
 # To complete the first assignment, please write the code for the following function
 def check_solution(grid, n_rows, n_cols):
     '''
@@ -196,7 +195,7 @@ def recursive_solve(grid, n_rows, n_cols):
     return: A solved grid (as a nested list), or None
     '''
     # Setting p_value as an empty list again
-    p_values = []
+
 
     # N is the maximum integer considered in this board
     n = n_rows * n_cols
@@ -213,32 +212,22 @@ def recursive_solve(grid, n_rows, n_cols):
             return None
     else:
         row, col = empty
-        p_values.append(possible_values(grid, row, col, n, n_rows, n_cols))
-        return p_values
-    
-
-    '''For some reason, whatever you put after this line doesnt get read, 
-    eg the print('hello') never comes up?
-    This implies that all the code that is meant to replace the number isnt being read
-    '''
-    
-    print('hello')
-
-    # Loop through possible values
+        p_values=possible_values(grid, row, col, n, n_rows, n_cols)
+        
+    # Going through only the possible values
     for value in p_values:
 
-        # Place the value into the grid
-        grid[row][col] = value
-        # Recursively solve the grid
-        ans = recursive_solve(grid, n_rows, n_cols)
-        # If we've found a solution, return it
-        if ans:
-            return ans
+   			#Place the value into the grid
+   			grid[row][col] = value
+   			#Recursively solve the grid
+   			ans = recursive_solve(grid, n_rows, n_cols)
+   			#If we've found a solution, return it
+   			if ans:
+   				return ans 
 
-        # If we couldn't find a solution, that must mean this value is incorrect.
-        # Reset the grid for the next iteration of the loop
-        grid[row][col] = 0
-
+   			#If we couldn't find a solution, that must mean this value is incorrect.
+   			#Reset the grid for the next iteration of the loop
+   			grid[row][col] = 0 
     # If we get here, we've tried all possible values. Return none to indicate the previous value is incorrect.
     return None
 

@@ -98,39 +98,50 @@ def get_subgrid(row,col):
     return subgrid
 
 
-# Defining a function that outputs the list of possible values left for any coordinate
-'''BTW ive renamed this from elimnates_values to possible_values for clarity'''
+# Defining a function that outputs the list of possible values left for any coordinat
 def possible_values(grid, row, col, n, n_rows, n_cols):
-    # Find values already present in the sudoku, create empty list p_values
-    p_values = []
+    ''' 
+    This function returns a list of possible values any position can take 
+    Args: 
+        grid(list) = sudoku grid
+        row(int) = x coordinate
+        col(int) = y coordinate
+        n(int) = max value the number can be
+        n_rows(int) = width of subgrid
+        n_cols(int) = height of subgrid
+
+    Returns:
+        p_values(list) = list of possible values
+
+    '''
+
+    # Find values already present in the sudoku
     row_values = grid[row]
     col_values = [grid[i][col] for i in range(n)]
-    #Find the subgrid values
-    subgrid=get_subgrid(row,col)
+    subgrid = get_subgrid(row, col)
     square_values = get_squares(grid, n_rows, n_cols)[subgrid]
-    # All values 1 to n+1 are possible before we check the rows, columns and squares
-    possible_values=[]
-    possible_values.append([i for i in range(1,n+1)])
-    # Put all values present into a single list
-    values_present = row_values + col_values + square_values
-    # Also put all possible values 1 to n+1 into the list
-    possible_values.append(values_present)
-    # The extend values just takes a list of nested lists and returns a normal list
-    final_values=[]
-    for sublist in possible_values:
-        final_values.extend(sublist)
-    # if the number is in the list more than once, remove it from the list
-    for element in final_values:
-        if final_values.count(element) ==1:
-            p_values.append(element)
+    # All values 1 to n are possible before we check the rows, columns and squares
+    possible_values = set(range(1, n+1))
+    # Remove values already present in the row, column, and subgrid
+    values_present = set(row_values + col_values + square_values)
+    p_values = list(possible_values - values_present)
     return p_values
 
 
-'''This function will return the coordinates of the positions with the lowest amount of possibilites
-It outputs a list in the form of: [possible value(s)],coordiantes(x,y)
-'''
 
 def find_lowest_possibilites(grid,n,n_rows,n_cols):
+    '''
+This function will return the coordinates of the positions with the lowest amount of possibilites
+    Args: 
+        grid(list) = sudoku grid
+        n(int) = max value the number can be
+        n_rows(int) = width of subgrid
+        n_cols(int) = height of subgrid
+    Returns:
+        An ordered list of possible values and their corresponding coordinates
+        ordered from lowest amount of possible values first
+        It outputs a list in the form of: [possible value(s)],coordiantes(x,y)
+'''
     possible_list=[]
     for i in range(len(zeros_index(grid))):
         row=zeros_index(grid)[i][0]
@@ -138,9 +149,8 @@ def find_lowest_possibilites(grid,n,n_rows,n_cols):
         # Finding the coordinates of the 0's
         possible_list.append((possible_values(grid,row,col,n,n_rows,n_cols),row,col))
         # Adding to the list the possible values, and the row and column theryre in
-    possible_list=sorted(possible_list)
     
-    return possible_list
+    return sorted(possible_list)
 
 # To complete the first assignment, please write the code for the following function
 def check_solution(grid, n_rows, n_cols):
@@ -310,5 +320,5 @@ def main():
     print("====================================")
     print("Test script complete, Total points: %d" % points)
 
-if __name__ == "__main__":
-       main()
+# if __name__ == "__main__":
+#        main()

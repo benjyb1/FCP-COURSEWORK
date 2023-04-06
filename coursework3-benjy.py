@@ -197,6 +197,7 @@ def recursive_solve(grid, n_rows, n_cols):
     return: A solved grid (as a nested list), or None
     '''
     # Using the current_grid variable so the original grids aren't changed
+    # The copy.deepcopy allows for nested lists to be fully copied.
     current_grid=copy.deepcopy(grid)
     # N is the maximum integer considered in this board
     

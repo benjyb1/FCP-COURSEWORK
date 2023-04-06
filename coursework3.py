@@ -48,9 +48,18 @@ DO NOT CHANGE CODE ABOVE THIS LINE
 ===================================
 '''
 import sys
-print(sys.argv)
-if sys.argv[1] == 'hint':
-    print('these are the grids', grids)
+
+print(sys.argv)  # Prints the command line arguments as items in a list ['filename.py', 'flag']
+if len(sys.argv) == 3:  # Check there are three command line arguments (the filename and either 'hint' 'number' or 'INPUT' 'OUTPUT')
+    flag = sys.argv[1]  # Assign the second command line argument to 'flag'
+    number = sys.argv[2]  # Assign the third command line argument to 'number'
+    print(number)  # Printing the number entered after 'hint' by the user in terminal
+    number = int(number)  # Changing the number's type from string to integer
+    #print(type(number))
+    print(flag)  # Printing the flag entered by the user in terminal
+
+
+
 
 
 

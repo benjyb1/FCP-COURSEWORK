@@ -47,6 +47,11 @@ grids = [(grid1, 2, 2), (grid2, 2, 2), (grid3, 2, 2), (grid4, 2, 2), (grid5, 2, 
 DO NOT CHANGE CODE ABOVE THIS LINE
 ===================================
 '''
+import argparse
+parser = argparse.ArgumentParser(description='A test program.')
+parser.add_argument("print_string", help="Prints the supplied argument.")
+args = parser.parse_args()
+print(args.print_string)
 
 
 def check_section(section, n):

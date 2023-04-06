@@ -69,6 +69,19 @@ def get_squares(grid, n_rows, n_cols):
 
     return squares
 
+'''This function outputs the index of the subgrid of any coordinate so that you can use
+it alongside the get_squares function in the form:
+    get_squares(variables)[subgrid]
+    in order to output the list of numbers in the specific subgrid youre looking at'''
+    
+def get_subgrid(row,col):
+    # determine the row and column indices of the subgrid containing the coordinate
+    row = row // 2
+    col = col // 2
+    # calculate the subgrid number based on the row and column indices
+    subgrid = row * 2 + col
+    return subgrid
+
 
 # Defining a function that eliminates values already in the box's row, grid or square
 '''BTW ive renamed this from elimnates_values to possible_values for clarity'''
@@ -77,19 +90,14 @@ def possible_values(grid, row, col, n, n_rows, n_cols):
     p_values = []
     row_values = grid[row]
     col_values = [grid[i][col] for i in range(n)]
-    '''
-    There is a problem where i can't find how to isolate the one square we're looking for, for example in grid1
-    we want the first 'square', as in small grid.
-    I think we need to find a way to be able to get from our coordinates of the 0 to the subgrid it is in, and 
-    then we would have the whole picture in terms of what values it can't be.'''
-    
-    square_values = get_squares(grid, n_rows, n_cols)
-
+    #Find the subgrid values
+    subgrid=get_subgrid(row,col)
+    square_values = get_squares(grid, n_rows, n_cols)[subgrid]
     # All values 1 to n+1 are possible before we check the rows, columns and squares
     possible_values=[]
     possible_values.append([i for i in range(1,n+1)])
     # Put all values present into a single list
-    values_present = row_values + col_values
+    values_present = row_values + col_values + square_values
     # Also put all possible values 1 to n+1 into the list
     possible_values.append(values_present)
     # The extend values just takes a list of nested lists and returns a normal list
@@ -102,7 +110,7 @@ def possible_values(grid, row, col, n, n_rows, n_cols):
             p_values.append(element)
         
     return p_values
-
+print(possible_values(grid1, 0, 1, 4,2,2))
 
 '''This function will return the coordinates of the positions with the lowest amount of possibilites
 It outputs a list in the form of: [possible value(s)],coordiantes(x,y)
@@ -208,9 +216,8 @@ def recursive_solve(grid, n_rows, n_cols):
             return None
     else:
         row, col = empty
-
-        p_values.append(possible_values(grid, row, col, n, n_rows, n_cols))
         return p_values
+    
 
     '''For some reason, whatever you put after this line doesnt get read, 
     eg the print('hello') never comes up???
@@ -279,5 +286,5 @@ def main():
     print("Test script complete, Total points: %d" % points)
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

@@ -34,12 +34,23 @@ grid5 = [
     [0, 0, 0, 1]]
 
 grid6 = [
+    
     [0, 0, 6, 0, 0, 3],
     [5, 0, 0, 0, 0, 0],
     [0, 1, 3, 4, 0, 0],
     [0, 0, 0, 0, 0, 6],
     [0, 0, 1, 0, 0, 0],
     [0, 5, 0, 0, 6, 4]]
+
+grid7=[[0, 2, 0, 0, 0, 0, 0, 1, 0],
+[0, 0, 6, 0, 4, 0, 0, 0, 0],
+[5, 8, 0, 0, 9, 0, 0, 0, 3],
+[0, 0, 0, 0, 0, 3, 0, 0, 4],
+[4, 1, 0, 0, 8, 0, 6, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 9, 5],
+[2, 0, 0, 0, 1, 0, 0, 8, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 3, 1, 0, 0, 8, 0, 5, 7]]
 
 grids = [(grid1, 2, 2), (grid2, 2, 2), (grid3, 2, 2), (grid4, 2, 2), (grid5, 2, 2)]
 '''
@@ -293,6 +304,47 @@ def flag_explain(grid,ans):
 if explain:
     for i in range(len(grids)):
         print('For grid[{}]: {}'.format(i+1, flag_explain(grids[i][0], recursive_solve(grids[i][0], grids[i][1], grids[i][2]))))
+'''I need to look at the format of how they will be inputting the new grids, as this is geared towards the
+current grids on this file, not the new ones'''
+
+def profile_time(grid,n_rows,n_cols):
+    # time=recursive_solve(grid, n_rows, n_cols)
+    start_time = time.time()
+    solution = solve(grid, n_rows, n_cols)
+    elapsed_time = time.time() - start_time
+    return elapsed_time
+
+import matplotlib.pyplot as plt
+
+def count_zeros(grid):
+    """Count the number of zeros in a list."""
+    count = 0
+    for row in grid:
+        for value in row:
+            if value == 0:
+                count += 1
+    return count
+
+def flag_profile(grid,n_rows,n_cols):
+    '''This function doesn't work at the moment, Im not sure if ive understood the question well enough
+    I think its not plotting anything perhaps because the types of num_zeros and times are different?'''
+    
+    num_zeros = []
+
+    start_time = time.time()
+    solve(grid, n_rows, n_cols)
+    end_time = time.time()
+    times=(end_time - start_time)
+    num_zeros=count_zeros(grid)
+    print(type(times),type(num_zeros))
+    plt.plot(num_zeros, times)
+    plt.xlabel('Number of Zeros')
+    plt.ylabel('Time (seconds)')
+    plt.show()
+
+    return 
+print(flag_profile(grid5,2,2))
+    
 
 # if profile:
     
@@ -301,7 +353,6 @@ if explain:
 DO NOT CHANGE CODE BELOW THIS LINE
 ===================================
 '''
-
 
 
 def main():
@@ -327,4 +378,4 @@ def main():
     print("Test script complete, Total points: %d" % points)
 
 # if __name__ == "__main__":
-#        main()
+#         main()

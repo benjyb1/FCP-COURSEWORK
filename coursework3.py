@@ -47,6 +47,7 @@ grids = [(grid1, 2, 2), (grid2, 2, 2), (grid3, 2, 2), (grid4, 2, 2), (grid5, 2, 
 DO NOT CHANGE CODE ABOVE THIS LINE
 ===================================
 '''
+
 import sys
 print(sys.argv)  # Prints the command line arguments as items in a list ['filename.py', 'flag']
 explain=False

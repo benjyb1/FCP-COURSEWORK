@@ -51,10 +51,13 @@ DO NOT CHANGE CODE ABOVE THIS LINE
 import sys
 print(sys.argv)  # Prints the command line arguments as items in a list ['filename.py', 'flag']
 explain=False
-for i in sys.argv:
+profile=False
+for i in sys.argv: #Checking which flags have been inputted
     if i == '-explain':
         explain=True
-
+    elif i == '-profile':
+        profile=True
+    
 
 if len(sys.argv) == 3:# Check there are three command line arguments (the filename and either 'hint' 'number' or 'INPUT' 'OUTPUT')
     flag = sys.argv[1]  # Assign the second command line argument to 'flag'
@@ -291,6 +294,8 @@ if explain:
     for i in range(len(grids)):
         print('For grid[{}]: {}'.format(i+1, flag_explain(grids[i][0], recursive_solve(grids[i][0], grids[i][1], grids[i][2]))))
 
+# if profile:
+    
 '''
 ===================================
 DO NOT CHANGE CODE BELOW THIS LINE

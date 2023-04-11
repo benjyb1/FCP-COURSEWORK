@@ -58,26 +58,42 @@ grids = [(grid1, 2, 2), (grid2, 2, 2), (grid3, 2, 2), (grid4, 2, 2), (grid5, 2, 
 DO NOT CHANGE CODE ABOVE THIS LINE
 ===================================
 '''
-
+import matplotlib.pyplot as plt
 import sys
 print(sys.argv)  # Prints the command line arguments as items in a list ['filename.py', 'flag']
 explain=False
 profile=False
-for i in sys.argv: #Checking which flags have been inputted
-    if i == '-explain':
-        explain=True
-    elif i == '-profile':
-        profile=True
-    
+hint=False
+hint_explain=False
 
-if len(sys.argv) == 3:# Check there are three command line arguments (the filename and either 'hint' 'number' or 'INPUT' 'OUTPUT')
-    flag = sys.argv[1]  # Assign the second command line argument to 'flag'
-    number = sys.argv[2]  # Assign the third command line argument to 'number'
-    print(number)  # Printing the number entered after 'hint' by the user in terminal
-    number = int(number)  # Changing the number's type from string to integer
-    #print(type(number))
-    print(flag)  # Printing the flag entered by the user in terminal
+'''
+For the comment line arguments, variables can be set as False by default, and if they are in the
+sys.argv, they're set as True
+Later in the code there's functions that can be called which do the flag and we
+just need to call them to get them running
+'''
 
+if '-explain' in sys.argv and not '-hint':
+    explain=True
+    print('Just explain is true')
+if '-hint' in sys.argv and not '-explain':
+    hint=True
+    print('Just hint is true')
+# if '-explain' in sys.argv and '-hint' in sys.argv:
+#     hint_explain=True
+#     print('Just hintexplain is true')
+# Global N will be used later, this represents the Number after the Hint flag
+for i in sys.argv:
+    if len(i)==1:
+        global_N=i    
+
+'''IMPORTANT
+Okay its not working at the moment but i have to go, Basically only the hint_explain can be called for soem reaon
+The 'and not x' part is making the rest of the line not work
+If you dont get to it before i do i can try to fix it im sure its an easy fix
+The reason ive put the 'and not x' is because the way ive set the funcitons up
+if hint and explain is called then they bohth individually get called so it doubles up,
+when we just want one cumulative hint/explain function to be called'''
 
 def check_section(section, n):
     if len(set(section)) == len(section) and sum(section) == sum([i for i in range(n + 1)]):
@@ -282,31 +298,6 @@ def zeros_index(grid):
                 zeros_list.append((row_index, col_index))
      
     return zeros_list
-
-
-def flag_explain(grid,ans):
-    '''Function that relates to the -explain flag.
-    args: the inital grid, the solved grid
-    return: An explanation for what number to replace each 0 with
-    '''
-    # Output a list of where the 0s are
-    zeros_coords=zeros_index(grid)
-    explained=[]
-    # For each zero coordinate find the corresponding number in the ans grid
-    for coord in zeros_coords:
-        row=coord[0]
-        col=coord[1]
-        answer=ans[row][col]
-        explained.append(f'Put {answer} in location ({row}, {col})')
-    return explained
-
-# If the -explain flag is triggered, output the instructions for each grid
-if explain:
-    for i in range(len(grids)):
-        print('For grid[{}]: {}'.format(i+1, flag_explain(grids[i][0], recursive_solve(grids[i][0], grids[i][1], grids[i][2]))))
-'''I need to look at the format of how they will be inputting the new grids, as this is geared towards the
-current grids on this file, not the new ones'''
-
 def profile_time(grid,n_rows,n_cols):
     # time=recursive_solve(grid, n_rows, n_cols)
     start_time = time.time()
@@ -314,7 +305,6 @@ def profile_time(grid,n_rows,n_cols):
     elapsed_time = time.time() - start_time
     return elapsed_time
 
-import matplotlib.pyplot as plt
 
 def count_zeros(grid):
     """Count the number of zeros in a list."""
@@ -343,11 +333,77 @@ def flag_profile(grid,n_rows,n_cols):
     plt.show()
 
     return 
-print(flag_profile(grid5,2,2))
-    
 
-# if profile:
+
+def flag_explain(grid,ans):
+    '''Function that relates to the -explain flag.
+    args: the inital grid, the solved grid
+    return: An explanation for what number to replace each 0 with
+    '''
+    # Output a list of where the 0s are
+    zeros_coords=zeros_index(grid)
+    explained=[]
+    # For each zero coordinate find the corresponding number in the ans grid
+    for coord in zeros_coords:
+        row=coord[0]
+        col=coord[1]
+        answer=ans[row][col]
+        explained.append(f'Put {answer} in location ({row}, {col})')
+    return explained
+
+
+
+def flag_hint(grid,n_rows,n_cols,N):
+    '''Function that puts back a certain number of zeros into the finished grid,
+    Returning the somewhat finished grid
+    Also if the hint_explain boul gets called then the function will output
+    N lines of the explain function
     
+    args: grid,n_rows,n_cols
+    N (int)= The global N, the number after the hint flag
+    returns: The partially filled answer, and if hint_explain is called, then also the 
+    partially included explanation
+    '''
+    # getting the coordinates of the zeros
+    zeros=zeros_index(grid)
+    # reversing the list so that its the last zeros that get replaced not the first ones
+    zeros_reversed=zeros[::-1]
+    # Getting the solved grid
+    answer=recursive_solve(grid, n_rows, n_cols)
+   
+    count = 0
+    ''' the int() may be temporary im not sure how their grids will be formatted'''
+    N=int(N)
+    # The enumerate part was because just a normal while loop wasn't working 
+    for count, coord in enumerate(zeros_reversed):
+        if count == N:
+            break
+        # Replacing N solved numbers from the end with 0
+        row = coord[0]
+        col = coord[1]
+        answer[row][col] = 0
+    # Outputting N explanation lines
+    if hint_explain:
+        explained=flag_explain(grid, answer)
+        for i in range(N):
+            explained_list=explained[:N]
+    # if no hint_explain, just return normal partially filled grid
+        return answer,explained_list
+    return answer
+
+# If the -explain flag is triggered, output the instructions for each grid
+if explain:
+    for i in range(len(grids)):
+        print('For grid[{}]: {}'.format(i+1, flag_explain(grids[i][0], recursive_solve(grids[i][0], grids[i][1], grids[i][2]))))
+'''I need to look at the format of how they will be inputting the new grids, as this is geared towards the
+current grids on this file, not the new ones'''
+
+if hint==True:
+    print('WOOOOOOOOO')
+    
+    
+if hint_explain:
+    print(flag_hint(grid4,2,2,global_N))
 '''
 ===================================
 DO NOT CHANGE CODE BELOW THIS LINE

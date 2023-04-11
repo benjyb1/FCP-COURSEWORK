@@ -71,7 +71,6 @@ for i in sys.argv: #Checking which flags have been inputted
 
 
 
-#def hint(n):
 
 
 

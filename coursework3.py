@@ -68,7 +68,12 @@ for i in sys.argv: #Checking which flags have been inputted
         explain=True
     elif i == '-profile':
         profile=True
-    
+
+
+
+#def hint(n):
+
+
 
 if len(sys.argv) == 3:# Check there are three command line arguments (the filename and either 'hint' 'number' or 'INPUT' 'OUTPUT')
     flag = sys.argv[1]  # Assign the second command line argument to 'flag'
@@ -98,6 +103,7 @@ def get_squares(grid, n_rows, n_cols):
             squares.append(square)
 
     return squares
+
 
 '''This function outputs the index of the subgrid of any coordinate so that you can use
 it alongside the get_squares function in the form:

@@ -64,36 +64,31 @@ print(sys.argv)  # Prints the command line arguments as items in a list ['filena
 explain=False
 profile=False
 hint=False
-hint_explain=False
-
+hint_explain=True
+global_N=2
 '''
 For the comment line arguments, variables can be set as False by default, and if they are in the
 sys.argv, they're set as True
 Later in the code there's functions that can be called which do the flag and we
 just need to call them to get them running
 '''
-
-if '-explain' in sys.argv and not '-hint':
+if '-explain' in sys.argv and not '-hint' in sys.argv:
     explain=True
     print('Just explain is true')
-if '-hint' in sys.argv and not '-explain':
+if '-hint' in sys.argv and not '-explain' in sys.argv:
     hint=True
     print('Just hint is true')
-# if '-explain' in sys.argv and '-hint' in sys.argv:
-#     hint_explain=True
-#     print('Just hintexplain is true')
+if '-explain' in sys.argv and '-hint' in sys.argv:
+    hint_explain=True
+    print('Just hintexplain is true')
+
+    
 # Global N will be used later, this represents the Number after the Hint flag
 for i in sys.argv:
     if len(i)==1:
-        global_N=i    
-
-'''IMPORTANT
-Okay its not working at the moment but i have to go, Basically only the hint_explain can be called for soem reaon
-The 'and not x' part is making the rest of the line not work
-If you dont get to it before i do i can try to fix it im sure its an easy fix
-The reason ive put the 'and not x' is because the way ive set the funcitons up
-if hint and explain is called then they bohth individually get called so it doubles up,
-when we just want one cumulative hint/explain function to be called'''
+        global_N=i
+    else:
+        global_N=50
 
 def check_section(section, n):
     if len(set(section)) == len(section) and sum(section) == sum([i for i in range(n + 1)]):
@@ -229,62 +224,6 @@ def find_empty(grid):
 
     return None
 
-def recursive_solve(grid, n_rows, n_cols):
-    '''
-    This function uses recursion to exhaustively search all possible solutions to a grid
-    until the solution is found
-
-    args: grid, n_rows, n_cols
-    return: A solved grid (as a nested list), or None
-    '''
-    # Using the current_grid variable so the original grids aren't changed
-    # The copy.deepcopy allows for nested lists to be fully copied.
-    current_grid=copy.deepcopy(grid)
-    # N is the maximum integer considered in this board
-    
-    n = n_rows * n_cols
-    # Find an empty place in the grid
-    empty = find_empty(current_grid)
-    # If there's no empty places left, check if we've found a solution
-    if not empty:
-        # If the solution is correct, return it.
-        if check_solution(current_grid, n_rows, n_cols):
-            return current_grid
-        else:
-            # If the solution is incorrect, return None
-            return None
-    else:
-        row, col = empty
-        p_values=possible_values(current_grid, row, col, n, n_rows, n_cols)
-        
-        # Going through only the possible values
-        for value in p_values:
-
-            # Place the value into the grid
-            current_grid[row][col] = value
-            # Recursively solve the grid
-            ans = recursive_solve(current_grid, n_rows, n_cols)
-            # If we've found a solution, return it
-            if ans:
-                return ans 
-
-            # If we couldn't find a solution, that must mean this value is incorrect.
-            # Reset the grid for the next iteration of the loop
-            current_grid[row][col] = 0 
-        # If we get here, we've tried all possible values. Return none to indicate the previous value is incorrect.
-        return None
-
-
-def solve(grid, n_rows, n_cols):
-    '''
-    Solve function for Sudoku coursework.
-    Comment out one of the lines below to either use the random or recursive solver
-    '''
-
-    # return random_solve(grid, n_rows, n_cols)
-    return recursive_solve(grid, n_rows, n_cols)
-
-
 def zeros_index(grid):
     '''This function outputs the coordinates of all the zeros in a grid.
     args: grid, the number of rows, number of columns
@@ -364,20 +303,14 @@ def flag_hint(grid,n_rows,n_cols,N):
     returns: The partially filled answer, and if hint_explain is called, then also the 
     partially included explanation
     '''
+    N=int(N)
     # getting the coordinates of the zeros
     zeros=zeros_index(grid)
-    # reversing the list so that its the last zeros that get replaced not the first ones
-    zeros_reversed=zeros[::-1]
+    # Only keeping N elements from the list
+    del zeros[:N]
     # Getting the solved grid
-    answer=recursive_solve(grid, n_rows, n_cols)
-   
-    count = 0
-    ''' the int() may be temporary im not sure how their grids will be formatted'''
-    N=int(N)
-    # The enumerate part was because just a normal while loop wasn't working 
-    for count, coord in enumerate(zeros_reversed):
-        if count == N:
-            break
+    answer=recursive_solve(grid, n_rows, n_cols,hint=False)
+    for coord in zeros:
         # Replacing N solved numbers from the end with 0
         row = coord[0]
         col = coord[1]
@@ -391,19 +324,86 @@ def flag_hint(grid,n_rows,n_cols,N):
         return answer,explained_list
     return answer
 
-# If the -explain flag is triggered, output the instructions for each grid
-if explain:
-    for i in range(len(grids)):
-        print('For grid[{}]: {}'.format(i+1, flag_explain(grids[i][0], recursive_solve(grids[i][0], grids[i][1], grids[i][2]))))
-'''I need to look at the format of how they will be inputting the new grids, as this is geared towards the
-current grids on this file, not the new ones'''
 
-if hint==True:
-    print('WOOOOOOOOO')
+
+
+def recursive_solve(grid, n_rows, n_cols,hint=False):
+    '''
+    This function uses recursion to exhaustively search all possible solutions to a grid
+    until the solution is found
+
+    args: grid, n_rows, n_cols
+    return: A solved grid (as a nested list), or None
+    '''
+  
+
+    # The copy.deepcopy allows for nested lists to be fully copied.
+    current_grid=copy.deepcopy(grid)
+    # N is the maximum integer considered in this board
+    n = n_rows * n_cols
+    # Find an empty place in the grid
+    empty = find_empty(current_grid)
+    # If there's no empty places left, check if we've found a solution
+    if not empty:
+        # If the solution is correct, return it.
+        if check_solution(current_grid, n_rows, n_cols):
+            return current_grid
+        else:
+            # If the solution is incorrect, return None
+            return None
+    else:
+        row, col = empty
+        p_values=possible_values(current_grid, row, col, n, n_rows, n_cols)
+        
+        # Going through only the possible values
+        for value in p_values:
+
+            # Place the value into the grid
+            current_grid[row][col] = value
+            # Recursively solve the grid
+            ans = recursive_solve(current_grid, n_rows, n_cols)
+            # If we've found a solution, return it
+            if ans:
+                return ans 
+
+            # If we couldn't find a solution, that must mean this value is incorrect.
+            # Reset the grid for the next iteration of the loop
+            current_grid[row][col] = 0 
+        # If we get here, we've tried all possible values. Return none to indicate the previous value is incorrect.
+        return None
+'''I've not been able to incorporate the hint/hint_explain into the recursive solver yet as
+they are called when hint is True, but then in the hint function is the recursive solver
+that needs hint to be false to actually output and answer
+need a way to turn hint off after being called just once
+'''
+    # if hint or hint_explain:
+  #     hint=False
+  #     return flag_hint(grid, n_rows, n_cols, global_N)    
+            
+
+def solve(grid, n_rows, n_cols):
+    '''
+    Solve function for Sudoku coursework.
+    Comment out one of the lines below to either use the random or recursive solver
+    '''
+
+    # return random_solve(grid, n_rows, n_cols)
+    return recursive_solve(grid, n_rows, n_cols)
+# If the -explain flag is triggered, output the instructions for each grid
+# if explain:
+#     for i in range(len(grids)):
+#         print('For grid[{}]: {}'.format(i+1, flag_explain(grids[i][0], recursive_solve(grids[i][0], grids[i][1], grids[i][2]))))
+# '''I need to look at the format of how they will be inputting the new grids, as this is geared towards the
+# current grids on this file, not the new ones'''
+
+# if hint:
+#     for i in range(len(grids)):
+#         print(flag_hint(grids[i][0], grids[i][1], grids[i][2], global_N))
     
-    
-if hint_explain:
-    print(flag_hint(grid4,2,2,global_N))
+# if hint_explain:
+#     for i in range(len(grids)):
+#         print(flag_hint(grids[i][0], grids[i][1], grids[i][2], global_N))
+ 
 '''
 ===================================
 DO NOT CHANGE CODE BELOW THIS LINE
@@ -433,5 +433,5 @@ def main():
     print("====================================")
     print("Test script complete, Total points: %d" % points)
 
-# if __name__ == "__main__":
-#         main()
+if __name__ == "__main__":
+        main()

@@ -72,28 +72,21 @@ sys.argv, they're set as True
 Later in the code there's functions that can be called which do the flag and we
 just need to call them to get them running
 '''
-
-if '-explain' in sys.argv and not '-hint':
+if '-explain' in sys.argv and not '-hint' in sys.argv:
     explain=True
     print('Just explain is true')
-if '-hint' in sys.argv and not '-explain':
+if '-hint' in sys.argv and not '-explain' in sys.argv:
     hint=True
     print('Just hint is true')
-# if '-explain' in sys.argv and '-hint' in sys.argv:
-#     hint_explain=True
-#     print('Just hintexplain is true')
+if '-explain' in sys.argv and '-hint' in sys.argv:
+    hint_explain=True
+    print('Just hintexplain is true')
+
+    
 # Global N will be used later, this represents the Number after the Hint flag
 for i in sys.argv:
     if len(i)==1:
         global_N=i    
-
-'''IMPORTANT
-Okay its not working at the moment but i have to go, Basically only the hint_explain can be called for soem reaon
-The 'and not x' part is making the rest of the line not work
-If you dont get to it before i do i can try to fix it im sure its an easy fix
-The reason ive put the 'and not x' is because the way ive set the funcitons up
-if hint and explain is called then they bohth individually get called so it doubles up,
-when we just want one cumulative hint/explain function to be called'''
 
 def check_section(section, n):
     if len(set(section)) == len(section) and sum(section) == sum([i for i in range(n + 1)]):
@@ -364,20 +357,18 @@ def flag_hint(grid,n_rows,n_cols,N):
     returns: The partially filled answer, and if hint_explain is called, then also the 
     partially included explanation
     '''
+    N=int(N)
     # getting the coordinates of the zeros
     zeros=zeros_index(grid)
-    # reversing the list so that its the last zeros that get replaced not the first ones
-    zeros_reversed=zeros[::-1]
+    # Only keeping N elements from the list
+    del zeros[:N]
     # Getting the solved grid
     answer=recursive_solve(grid, n_rows, n_cols)
-   
-    count = 0
+
     ''' the int() may be temporary im not sure how their grids will be formatted'''
-    N=int(N)
-    # The enumerate part was because just a normal while loop wasn't working 
-    for count, coord in enumerate(zeros_reversed):
-        if count == N:
-            break
+
+    
+    for coord in zeros:
         # Replacing N solved numbers from the end with 0
         row = coord[0]
         col = coord[1]
@@ -391,6 +382,7 @@ def flag_hint(grid,n_rows,n_cols,N):
         return answer,explained_list
     return answer
 
+
 # If the -explain flag is triggered, output the instructions for each grid
 if explain:
     for i in range(len(grids)):
@@ -398,12 +390,14 @@ if explain:
 '''I need to look at the format of how they will be inputting the new grids, as this is geared towards the
 current grids on this file, not the new ones'''
 
-if hint==True:
-    print('WOOOOOOOOO')
-    
+if hint:
+    for i in range(len(grids)):
+        print(flag_hint(grids[i][0], grids[i][1], grids[i][2], global_N))
     
 if hint_explain:
-    print(flag_hint(grid4,2,2,global_N))
+    for i in range(len(grids)):
+        print(flag_hint(grids[i][0], grids[i][1], grids[i][2], global_N))
+    
 '''
 ===================================
 DO NOT CHANGE CODE BELOW THIS LINE

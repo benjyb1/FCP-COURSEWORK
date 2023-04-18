@@ -58,16 +58,19 @@ grids = [(grid1, 2, 2), (grid2, 2, 2), (grid3, 2, 2), (grid4, 2, 2), (grid5, 2, 
 DO NOT CHANGE CODE ABOVE THIS LINE
 ===================================
 '''
+
+
+import numpy as np
 import matplotlib.pyplot as plt
 import sys
 print(sys.argv)  # Prints the command line arguments as items in a list ['filename.py', 'flag']
-explain=False
-profile=False
-hint=False
-hint_explain=False
-file=False
-global_N=2
 
+flags=['-explain','-profile','-hint','-hint_explain','-file']
+hint=False
+explain=False
+hint_explain=False
+profile=False
+file=False
 '''
 For the comment line arguments, variables can be set as False by default, and if they are in the
 sys.argv, they're set as True
@@ -80,23 +83,50 @@ if '-hint' in sys.argv and not '-explain' in sys.argv:
     hint=True
 if '-explain' in sys.argv and '-hint' in sys.argv:
     hint_explain=True
-if '-profile' in sys.argv:
+if '-profile' in sys.argv:# The profile flag overrides all other flags as they make the code take longer
     profile=True
-if '-file' in sys.argv:
-    file=True    
-# Global N will be used later, this represents the Number after the Hint flag
-for i in sys.argv:
-    if len(i)==1:
-        global_N=i
-    else:
-        global_N=50 #arbitrary large constant
-
-# The profile flag overrides all other flags as they make the code take longer
-if profile:
     hint=False
     explain=False
     hint_explain=False
-  
+    
+if '-file' in sys.argv:
+    file=True
+    
+# Global N will be used later, this represents the Number after the Hint flag
+file_names=[]
+for argument in sys.argv:
+    if len(argument)==1:
+        global_N=argument
+    else:
+        global_N=50 #arbitrary large constant
+    if argument not in flags:
+        file_names.append(argument)
+
+print('these are filenames',file_names)
+
+def input_file_to_grid(input_file):
+    # open the file for reading
+    # inputfile,outputfile=file_names=[1],file_names[2] #The first file_name is coursework3.py
+    with open(input_file, 'r') as f:
+        # read the file contents as a list of lines
+        lines = f.readlines()
+    # create an empty list to hold the grid
+    grid = []
+    # loop through the lines and split them into individual elements
+    for line in lines:
+        row = line.strip().split(', ')
+        # convert each element to an integer and append the row to the grid
+        grid.append([int(x) for x in row])
+    
+    # print the grid to verify the results
+    return grid
+if file:
+    global_grid=input_file_to_grid('/Users/benjyb/Documents/GitHub/FCP-COURSEWORK/med2')
+
+print(global_grid)
+
+
+
 def check_section(section, n):
     
     if len(set(section)) == len(section) and sum(section) == sum([i for i in range(n + 1)]):
@@ -301,38 +331,6 @@ def get_times(solver,grid,n_rows, n_cols):
     return elapsed_time
 
 
-import numpy as np
-
-def flag_profile(grid, n_rows, n_cols):
-    '''
-    This function compares the different solvers' performance on different grids
-    '''
-    times = []
-    solvers = [random_solve, old_recursive_solve, recursive_solve]
-    for solver in solvers:
-        times.append(get_times(solver, grid, n_rows, n_cols))
-
-    # plot the results as a bar chart with a logarithmic scale
-    x_labels = ['Random Solver', 'Old Recursive Solver', 'Recursive Solver']
-    x_pos = [i for i in range(len(x_labels))]
-    plt.bar(x_pos, times)
-    plt.xticks(x_pos, x_labels)
-    plt.ylabel('Time (s)')
-    plt.title('Solver Performance on Grid')
-    
-    # set y-axis scale to logarithmic
-    plt.yscale('log')
-    plt.yticks([10**i for i in range(int(np.log10(min(times))), int(np.log10(max(times))) + 1)])
-    
-    plt.show()
-
-    return times
-
-
-
-
-print(flag_profile(grid5, 2,2))
-
 def flag_explain(grid,ans):
     '''Function that relates to the -explain flag.
     args: the inital grid, the solved grid
@@ -474,11 +472,34 @@ def solve(grid, n_rows, n_cols):
     Solve function for Sudoku coursework.
     Comment out one of the lines below to either use the random or recursive solver
     '''
-    #     return flag_hint(grid, n_rows, n_cols, global_N)
+    # return flag_hint(grid, n_rows, n_cols, global_N)
     # return random_solve(grid, n_rows, n_cols)
     return recursive_solve(grid, n_rows, n_cols)
 
+def flag_profile(grid, n_rows, n_cols):
+    '''
+    This function compares the different solvers' performance on different grids
+    '''
+    times = []
+    solvers = [random_solve, old_recursive_solve, recursive_solve]
+    for solver in solvers:
+        times.append(get_times(solver, grid, n_rows, n_cols))
 
+    # plot the results as a bar chart with a logarithmic scale
+    x_labels = ['Random Solver', 'Old Recursive Solver', 'Recursive Solver']
+    x_pos = [i for i in range(len(x_labels))]
+    plt.bar(x_pos, times)
+    plt.xticks(x_pos, x_labels)
+    plt.ylabel('Time (s)')
+    plt.title('Solver Performance, Log scale')
+    
+    # set y-axis scale to logarithmic
+    plt.yscale('log')
+    plt.yticks([10**i for i in range(int(np.log10(min(times))), int(np.log10(max(times))) + 1)])
+    
+    plt.show()
+
+    return
 
 # If the -explain flag is triggered, output the instructions for each grid
 if explain:
@@ -491,7 +512,6 @@ if profile:
 
 def main():
     points = 0
-
     print("Running test script for coursework 1")
     print("====================================")
 
@@ -509,11 +529,23 @@ def main():
         if check_solution(solution, n_rows, n_cols):
             print("grid %d correct" % (i + 1))
             points = points + 10
+            
         else:
             print("grid %d incorrect" % (i + 1))
 
     print("====================================")
     print("Test script complete, Total points: %d" % points)
-
+    
 if __name__ == "__main__":
         main()
+output_file='output.txt'
+
+output=main()
+print(output)
+# if file:
+#     with open(output_file, 'w') as f:
+#         mainman=[]
+#         mainman.append(main())
+#         for line in mainman:
+#             print(line,'HAHA')
+#             f.write(line)

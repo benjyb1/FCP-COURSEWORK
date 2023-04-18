@@ -1,7 +1,7 @@
 import random
 import copy
 import time
-
+import matplotlib as plt
 # Grids 1-4 are 2x2
 grid1 = [
     [1, 0, 4, 2],
@@ -64,8 +64,10 @@ print(sys.argv)  # Prints the command line arguments as items in a list ['filena
 explain=False
 profile=False
 hint=False
-hint_explain=True
+hint_explain=False
+file=False
 global_N=2
+
 '''
 For the comment line arguments, variables can be set as False by default, and if they are in the
 sys.argv, they're set as True
@@ -74,27 +76,70 @@ just need to call them to get them running
 '''
 if '-explain' in sys.argv and not '-hint' in sys.argv:
     explain=True
-    print('Just explain is true')
 if '-hint' in sys.argv and not '-explain' in sys.argv:
     hint=True
-    print('Just hint is true')
 if '-explain' in sys.argv and '-hint' in sys.argv:
     hint_explain=True
-    print('Just hintexplain is true')
-
-    
+if '-profile' in sys.argv:
+    profile=True
+if '-file' in sys.argv:
+    file=True    
 # Global N will be used later, this represents the Number after the Hint flag
 for i in sys.argv:
     if len(i)==1:
         global_N=i
     else:
-        global_N=50
+        global_N=50 #arbitrary large constant
 
+# The profile flag overrides all other flags as they make the code take longer
+if profile:
+    hint=False
+    explain=False
+    hint_explain=False
+  
 def check_section(section, n):
+    
     if len(set(section)) == len(section) and sum(section) == sum([i for i in range(n + 1)]):
         return True
     return False
 
+
+
+def random_solve(grid, n_rows, n_cols, max_tries=50000):
+	'''
+	This function uses random trial and error to solve a Sudoku grid
+
+	args: grid, n_rows, n_cols, max_tries
+	return: A solved grid (as a nested list), or the original grid if no solution is found
+	'''
+
+	for i in range(max_tries):
+		possible_solution = fill_board_randomly(grid, n_rows, n_cols)
+		if check_solution(possible_solution, n_rows, n_cols):
+			return possible_solution
+
+	return grid
+
+def fill_board_randomly(grid, n_rows, n_cols):
+	'''
+	This function will fill an unsolved Sudoku grid with random numbers
+
+	args: grid, n_rows, n_cols
+	return: A grid with all empty values filled in
+	'''
+	n = n_rows*n_cols
+	#Make a copy of the original grid
+	filled_grid = copy.deepcopy(grid)
+
+	#Loop through the rows
+	for i in range(len(grid)):
+		#Loop through the columns
+		for j in range(len(grid[0])):
+			#If we find a zero, fill it in with a random integer
+			if grid[i][j] == 0:
+				filled_grid[i][j] = random.randint(1, n)
+
+	return filled_grid 
 
 def get_squares(grid, n_rows, n_cols):
     squares = []
@@ -237,13 +282,6 @@ def zeros_index(grid):
                 zeros_list.append((row_index, col_index))
      
     return zeros_list
-def profile_time(grid,n_rows,n_cols):
-    # time=recursive_solve(grid, n_rows, n_cols)
-    start_time = time.time()
-    solution = solve(grid, n_rows, n_cols)
-    elapsed_time = time.time() - start_time
-    return elapsed_time
-
 
 def count_zeros(grid):
     """Count the number of zeros in a list."""
@@ -253,26 +291,37 @@ def count_zeros(grid):
             if value == 0:
                 count += 1
     return count
+def file(INPUT,OUTPUT):
+     pass
 
-def flag_profile(grid,n_rows,n_cols):
-    '''This function doesn't work at the moment, Im not sure if ive understood the question well enough
-    I think its not plotting anything perhaps because the types of num_zeros and times are different?'''
-    
-    num_zeros = []
-
+def get_times(solver,grid,n_rows, n_cols):
     start_time = time.time()
-    solve(grid, n_rows, n_cols)
-    end_time = time.time()
-    times=(end_time - start_time)
-    num_zeros=count_zeros(grid)
-    print(type(times),type(num_zeros))
-    plt.plot(num_zeros, times)
-    plt.xlabel('Number of Zeros')
+    solution = solver(grid, n_rows, n_cols)
+    elapsed_time = time.time() - start_time
+    return elapsed_time
+
+
+def flag_profile(grid, n_rows, n_cols):
+    '''
+    This function compares the different solvers' performance on different grids
+    '''
+    times=[]
+    solvers=[random_solve,old_recursive_solve,recursive_solve]
+    labels=['Random', 'Old Recursive', 'Recursive']
+    for solver in solvers:
+        times.append(get_times(solver, grid, n_rows, n_cols))
+    print(times,'TIMES')
+    plt.bar(labels, times)
     plt.ylabel('Time (seconds)')
+    plt.title('Solver time for different algorithms')
     plt.show()
 
-    return 
+    return times
 
+
+
+
+print(flag_profile(grid5, 2,2))
 
 def flag_explain(grid,ans):
     '''Function that relates to the -explain flag.
@@ -309,7 +358,7 @@ def flag_hint(grid,n_rows,n_cols,N):
     # Only keeping N elements from the list
     del zeros[:N]
     # Getting the solved grid
-    answer=recursive_solve(grid, n_rows, n_cols,hint=False)
+    answer=recursive_solve(grid, n_rows, n_cols)
     for coord in zeros:
         # Replacing N solved numbers from the end with 0
         row = coord[0]
@@ -326,17 +375,56 @@ def flag_hint(grid,n_rows,n_cols,N):
 
 
 
+def old_recursive_solve(grid, n_rows, n_cols):
+	'''
+	This the unimproved function uses recursion to exhaustively search all possible solutions to a grid
+	until the solution is found
+    This function is purely here for the -profile flag
 
-def recursive_solve(grid, n_rows, n_cols,hint=False):
+	args: grid, n_rows, n_cols
+	return: A solved grid (as a nested list), or None
+	'''
+
+	#N is the maximum integer considered in this board
+	n = n_rows*n_cols
+	#Find an empty place in the grid
+	empty = find_empty(grid)
+
+	#If there's no empty places left, check if we've found a solution
+	if not empty:
+		#If the solution is correct, return it.
+		if check_solution(grid, n_rows, n_cols):
+			return grid 
+		else:
+			#If the solution is incorrect, return None
+			return None
+	else:
+		row, col = empty 
+
+	#Loop through possible values
+	for i in range(1, n+1):
+
+			#Place the value into the grid
+			grid[row][col] = i
+			#Recursively solve the grid
+			ans = recursive_solve(grid, n_rows, n_cols)
+			#If we've found a solution, return it
+			if ans:
+				return ans 
+
+			#If we couldn't find a solution, that must mean this value is incorrect.
+			#Reset the grid for the next iteration of the loop
+			grid[row][col] = 0 
+
+	#If we get here, we've tried all possible values. Return none to indicate the previous value is incorrect.
+	return None
+def recursive_solve(grid, n_rows, n_cols):
     '''
     This function uses recursion to exhaustively search all possible solutions to a grid
     until the solution is found
-
     args: grid, n_rows, n_cols
     return: A solved grid (as a nested list), or None
     '''
-  
-
     # The copy.deepcopy allows for nested lists to be fully copied.
     current_grid=copy.deepcopy(grid)
     # N is the maximum integer considered in this board
@@ -357,7 +445,6 @@ def recursive_solve(grid, n_rows, n_cols,hint=False):
         
         # Going through only the possible values
         for value in p_values:
-
             # Place the value into the grid
             current_grid[row][col] = value
             # Recursively solve the grid
@@ -365,51 +452,32 @@ def recursive_solve(grid, n_rows, n_cols,hint=False):
             # If we've found a solution, return it
             if ans:
                 return ans 
-
             # If we couldn't find a solution, that must mean this value is incorrect.
             # Reset the grid for the next iteration of the loop
             current_grid[row][col] = 0 
         # If we get here, we've tried all possible values. Return none to indicate the previous value is incorrect.
         return None
-'''I've not been able to incorporate the hint/hint_explain into the recursive solver yet as
-they are called when hint is True, but then in the hint function is the recursive solver
-that needs hint to be false to actually output and answer
-need a way to turn hint off after being called just once
-'''
-    # if hint or hint_explain:
-  #     hint=False
-  #     return flag_hint(grid, n_rows, n_cols, global_N)    
-            
+      
 
 def solve(grid, n_rows, n_cols):
     '''
     Solve function for Sudoku coursework.
     Comment out one of the lines below to either use the random or recursive solver
     '''
-
+    #     return flag_hint(grid, n_rows, n_cols, global_N)
     # return random_solve(grid, n_rows, n_cols)
     return recursive_solve(grid, n_rows, n_cols)
+
+
+
 # If the -explain flag is triggered, output the instructions for each grid
-# if explain:
-#     for i in range(len(grids)):
-#         print('For grid[{}]: {}'.format(i+1, flag_explain(grids[i][0], recursive_solve(grids[i][0], grids[i][1], grids[i][2]))))
-# '''I need to look at the format of how they will be inputting the new grids, as this is geared towards the
-# current grids on this file, not the new ones'''
-
-# if hint:
-#     for i in range(len(grids)):
-#         print(flag_hint(grids[i][0], grids[i][1], grids[i][2], global_N))
-    
-# if hint_explain:
-#     for i in range(len(grids)):
-#         print(flag_hint(grids[i][0], grids[i][1], grids[i][2], global_N))
- 
-'''
-===================================
-DO NOT CHANGE CODE BELOW THIS LINE
-===================================
-'''
-
+if explain:
+    for i in range(len(grids)):
+        print('For grid[{}]: {}'.format(i+1, flag_explain(grids[i][0], recursive_solve(grids[i][0], grids[i][1], grids[i][2]))))
+'''I need to look at the format of how they will be inputting the new grids, as this is geared towards the
+current grids on this file, not the new ones'''
+if profile:
+    print(flag_profile(grid5, 2, 2),'Profile is working')
 
 def main():
     points = 0
@@ -423,7 +491,11 @@ def main():
         solution = solve(grid, n_rows, n_cols)
         elapsed_time = time.time() - start_time
         print("Solved in: %f seconds" % elapsed_time)
-        print(solution)
+        
+        if hint or hint_explain:
+            print(flag_hint(grid, n_rows, n_cols, global_N))
+        else:
+            print(solution)
         if check_solution(solution, n_rows, n_cols):
             print("grid %d correct" % (i + 1))
             points = points + 10

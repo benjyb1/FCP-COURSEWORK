@@ -301,19 +301,29 @@ def get_times(solver,grid,n_rows, n_cols):
     return elapsed_time
 
 
+import numpy as np
+
 def flag_profile(grid, n_rows, n_cols):
     '''
     This function compares the different solvers' performance on different grids
     '''
-    times=[]
-    solvers=[random_solve,old_recursive_solve,recursive_solve]
-    labels=['Random', 'Old Recursive', 'Recursive']
+    times = []
+    solvers = [random_solve, old_recursive_solve, recursive_solve]
     for solver in solvers:
         times.append(get_times(solver, grid, n_rows, n_cols))
-    print(times,'TIMES')
-    plt.bar(labels, times)
-    plt.ylabel('Time (seconds)')
-    plt.title('Solver time for different algorithms')
+
+    # plot the results as a bar chart with a logarithmic scale
+    x_labels = ['Random Solver', 'Old Recursive Solver', 'Recursive Solver']
+    x_pos = [i for i in range(len(x_labels))]
+    plt.bar(x_pos, times)
+    plt.xticks(x_pos, x_labels)
+    plt.ylabel('Time (s)')
+    plt.title('Solver Performance on Grid')
+    
+    # set y-axis scale to logarithmic
+    plt.yscale('log')
+    plt.yticks([10**i for i in range(int(np.log10(min(times))), int(np.log10(max(times))) + 1)])
+    
     plt.show()
 
     return times

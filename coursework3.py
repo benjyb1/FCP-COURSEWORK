@@ -71,6 +71,7 @@ explain=False
 hint_explain=False
 profile=False
 file=False
+file_explain=False
 '''
 For the comment line arguments, variables can be set as False by default, and if they are in the
 sys.argv, they're set as True
@@ -91,6 +92,9 @@ if '-profile' in sys.argv:# The profile flag overrides all other flags as they m
     
 if '-file' in sys.argv:
     file=True
+
+if '-file' in sys.argv and '-explain' in sys.argv:
+    file_explain=True
     
 # Global N will be used later, this represents the Number after the Hint flag
 file_names=[]

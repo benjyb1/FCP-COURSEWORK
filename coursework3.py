@@ -111,27 +111,40 @@ if file_explain:
 
 
 
-def input_file_to_grid(input_file):
+def output_grid_to_file(output_file, grid):
+    with open(output_file, 'w') as t:
+        t.write(str(grid))
+
+
+def input_file_to_grid(input_file, output_file):
     # open the file for reading
     # inputfile,outputfile=file_names=[1],file_names[2] #The first file_name is coursework3.py
     with open(input_file, 'r') as f:
         # read the file contents as a list of lines
         lines = f.readlines()
+        #print('lines=', lines)
+        #input_row = len(lines[1])
+        #input_col = len(lines)
+        #print('input row=', input_row)
+        #print('input col=', input_col)
     # create an empty list to hold the grid
     grid = []
     # loop through the lines and split them into individual elements
     for line in lines:
         row = line.strip().split(', ')
+        #print(row)
         # convert each element to an integer and append the row to the grid
-        grid.append([int(x) for x in row])
+        grid.append([int(float(x)) for x in row])
+        output_grid_to_file(output_file, grid)
+
 
     # print the grid to verify the results
-    return grid
+    #return grid
 
 
-if file:
-    global_grid = input_file_to_grid('/Users/benjyb/Documents/GitHub/FCP-COURSEWORK/med2')
-    print(global_grid)
+
+
+
 
 
 def check_section(section, n):
@@ -490,6 +503,14 @@ def solve(grid, n_rows, n_cols):
     # return flag_hint(grid, n_rows, n_cols, global_N)
     # return random_solve(grid, n_rows, n_cols)
     return recursive_solve(grid, n_rows, n_cols)
+
+
+if file:
+    global_grid = input_file_to_grid('C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/med2.txt', 'C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/outputfile1.txt.txt')
+    print(global_grid)
+    #output_grid = recursive_solve(global_grid)
+    #output_grid_to_file('C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/outputfile1.txt', global_grid)
+
 
 
 def flag_profile(grid, n_rows, n_cols):

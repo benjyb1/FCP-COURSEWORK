@@ -73,7 +73,7 @@ profile=False
 file=False
 file_explain=False
 '''
-For the comment line arguments, variables can be set as False by default, and if they are in the
+For the comment line arguments, variables are set as False by default, and if they are in the
 sys.argv, they're set as True
 Later in the code there's functions that can be called which do the flag and we
 just need to call them to get them running
@@ -84,7 +84,7 @@ if '-hint' in sys.argv and not '-explain' in sys.argv:
     hint=True
 if '-explain' in sys.argv and '-hint' in sys.argv:
     hint_explain=True
-if '-profile' in sys.argv:# The profile flag overrides all other flags as they make the code take longer
+if '-profile' in sys.argv:  # The profile flag overrides all other flags as they make the code take longer
     profile=True
     hint=False
     explain=False

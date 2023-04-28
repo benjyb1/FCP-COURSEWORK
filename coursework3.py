@@ -76,8 +76,6 @@ file_explain = False
 '''
 For the comment line arguments, variables are set as False by default, and if they are in the
 sys.argv, they're set as True
-Later in the code there's functions that can be called which do the flag and we
-just need to call them to get them running
 '''
 if '-explain' in sys.argv and not '-hint' in sys.argv:
     explain = True
@@ -90,10 +88,8 @@ if '-profile' in sys.argv:  # The profile flag overrides all other flags as they
     hint = False
     explain = False
     hint_explain = False
-
 if '-file' in sys.argv:
     file = True
-
 if '-file' in sys.argv and '-explain' in sys.argv:
     file_explain = True
 
@@ -103,11 +99,13 @@ if file_explain:
     for argument in sys.argv:
         if len(argument) == 1:
             global_N = argument
-            if argument not in flags:
-                file_names.append(argument)
-                print('these are filenames', file_names)
         else:
-            global_N = 50  # arbitrary large constant
+            global_N = 500000  # arbitrary large constant
+            if argument not in flags: #If the arg is longer than 1, it must be a filename
+                file_names.append(argument)
+                file_names=file_names[1:]
+
+# print('these are filenames', file_names)
 
 
 def check_section(section, n):

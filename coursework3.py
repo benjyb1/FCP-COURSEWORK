@@ -2,6 +2,7 @@ import random
 import copy
 import time
 import matplotlib as plt
+from matplotlib.patches import Patch
 
 # Grids 1-4 are 2x2
 grid1 = [
@@ -238,41 +239,6 @@ def check_square(grid,x,y,value,n_rows,n_cols):
     return True
 
 
-# Defining a function that outputs the list of possible values left for any coordinat
-# def possible_values(grid, row, col, n, n_rows, n_cols):
-#     ''' 
-#     This function returns a list of possible values any position can take 
-#     Args: 
-#         grid(list) = sudoku grid
-#         row(int) = x coordinate
-#         col(int) = y coordinate
-#         n(int) = max value the number can be
-#         n_rows(int) = width of subgrid
-#         n_cols(int) = height of subgrid
-
-#     Returns:
-#         p_values(list) = list of possible values
-
-#     '''
-
-#     # Find values already present in the sudoku
-#     row_values = grid[row]
-#     col_values = [grid[i][col] for i in range(n)]
-
-
-#     # All values 1 to n are possible before we check the rows, columns and squares
-#     possible_values = range(1, n + 1)
-#     for i in possible_values:
-#         if check_square(grid,row,col,i,n_rows,n_cols):
-#             square_values=check_square(grid,row,col,i,n_rows,n_cols)
-
-#     # Remove values already present in the row, column, and subgrid
-#     values_present = set(row_values + col_values + square_values)
-#     p_values = list(possible_values - values_present)
-#     return p_values
-
-
-
 # To complete the first assignment, please write the code for the following function
 def check_solution(grid, n_rows, n_cols):
     '''
@@ -321,10 +287,17 @@ def find_empty(grid,n_rows,n_cols):
     return empty_space
 
 def is_valid_value(grid, n_rows, n_cols, row, col, value,row_coord,col_coord):
+    '''This function returns a bool of whether the specified value is in any of the subsections'''
     valid_value = check_line(row,value) and check_line(col,value) and check_square(grid,row_coord,col_coord,value,n_rows,n_cols)
     return valid_value
 
 def recursive_solve(grid, n_rows, n_cols):
+    '''
+    This function uses recursion to exhaustively search all possible solutions to a grid
+    until the solution is found
+    args: grid, n_rows, n_cols
+    return: A solved grid (as a nested list), or None
+    '''
     # Calculate the highest value that can appear in the grid
     max_value = n_rows * n_cols
 
@@ -342,7 +315,6 @@ def recursive_solve(grid, n_rows, n_cols):
             # Check that the value is not already in the same row, column, or square
             if is_valid_value(grid, n_rows, n_cols, row, col, value,row_coord,col_coord):
                 # Fill the empty cell with the value
-                print(row,col,value)
                 grid[row_coord][col_coord] = value
 
                 # Recursively solve the updated grid
@@ -369,6 +341,8 @@ def solve(grid, n_rows, n_cols):
     '''
     # return flag_hint(grid, n_rows, n_cols, global_N)
     # return random_solve(grid, n_rows, n_cols)
+
+    # return fill_board_randomly(grid, n_rows, n_cols)
     return recursive_solve(grid, n_rows, n_cols)
 
 
@@ -502,28 +476,35 @@ def old_recursive_solve(grid, n_rows, n_cols):
     # If we get here, we've tried all possible values. Return none to indicate the previous value is incorrect.
     return None
 
-
-
+profile=True
 def flag_profile(grid, n_rows, n_cols):
     '''
     This function compares the different solvers' performance on different grids
     '''
     times = []
-    solvers = [random_solve, old_recursive_solve, recursive_solve]
+    solvers = [fill_board_randomly, random_solve, old_recursive_solve, recursive_solve]
     for solver in solvers:
-        times.append(get_times(solver, grid, n_rows, n_cols))
+        if check_solution(solver(grid, n_rows, n_cols),n_rows, n_cols):
+            times.append(get_times(solver, grid, n_rows, n_cols))
+        else:
+            times.append(5)
 
-    # Plotting the times on a Logarithmic scale
-    x_labels = ['Random Solver', 'Old Recursive Solver', 'Recursive Solver']
+    # Defining the colors of the bars based on their values
+    colors = ['red' if t >= 5 else 'blue' for t in times]
+
+    # Plotting the times on a logarithmic scale
+    x_labels = ['Fill Randomly', 'Random', 'Old Recursive', 'Recursive']
     x_position = [i for i in range(len(x_labels))]
-    plt.bar(x_position, times)
+    plt.bar(x_position, times, color=colors)
     plt.xticks(x_position, x_labels)
     plt.ylabel('Time (s)')
     plt.title('Solver Performance, Log scale')
-
+    labels = ['Reached solution' if t and t <= 9 else 'No solution' if t is None else 'Over 9s' for t in times]
     # Setting the y axis to logarithmic
     plt.yscale('log')
     plt.yticks([10 ** i for i in range(int(np.log10(min(times))), int(np.log10(max(times))) + 1)])
+    legend_elements = [Patch(facecolor='blue', label='Reached solution'),Patch(facecolor='red', label='No solution')]
+    plt.legend(handles=legend_elements)
 
     plt.show()
 

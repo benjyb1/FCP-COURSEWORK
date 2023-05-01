@@ -53,7 +53,7 @@ grid7 = [[0, 2, 0, 0, 0, 0, 0, 1, 0],
          [0, 0, 0, 0, 0, 0, 0, 0, 0],
          [0, 3, 1, 0, 0, 8, 0, 5, 7]]
 
-grids = [(grid1, 2, 2), (grid2, 2, 2), (grid3, 2, 2), (grid4, 2, 2), (grid5, 2, 2)]
+grids = [(grid1, 2, 2), (grid2, 2, 2), (grid3, 2, 2), (grid4, 2, 2), (grid5, 2, 2),(grid6,2,3), (grid7,3,3)]
 '''
 ===================================
 DO NOT CHANGE CODE ABOVE THIS LINE
@@ -75,7 +75,7 @@ file = False
 file_explain = False
 '''
 For the comment line arguments, variables are set as False by default, and if they are in the
-sys.argv, they're set as True
+sys.argv, they're reset as True
 '''
 if '-explain' in sys.argv and not '-hint' in sys.argv:
     explain = True
@@ -108,7 +108,44 @@ if file_explain:
 # print('these are filenames', file_names)
 
 
+def output_grid_to_file(output_file, grid):
+    with open(output_file, 'w') as t:
+        t.write(str(grid))
+
+
+def input_file_to_grid(input_file, output_file):
+    # open the file for reading
+    # inputfile,outputfile=file_names=[1],file_names[2] #The first file_name is coursework3.py
+    with open(input_file, 'r') as f:
+        # read the file contents as a list of lines
+        lines = f.readlines()
+        #print('lines=', lines)
+        #input_row = len(lines[1])
+        #input_col = len(lines)
+        #print('input row=', input_row)
+        #print('input col=', input_col)
+    # create an empty list to hold the grid
+    grid = []
+    # loop through the lines and split them into individual elements
+    for line in lines:
+        row = line.strip().split(', ')
+        #print(row)
+        # convert each element to an integer and append the row to the grid
+        grid.append([int(float(x)) for x in row])
+        output_grid_to_file(output_file, grid)
+
+
+    # print the grid to verify the results
+    #return grid
+
+
 def check_section(section, n):
+    '''This functoin checks the specified section of the grid to see if its correct.
+    Args: Section - Row/Column/Square of the grid
+          n= Length of section
+    
+    '''
+
     if len(set(section)) == len(section) and sum(section) == sum([i for i in range(n + 1)]):
         return True
     return False
@@ -153,27 +190,32 @@ def fill_board_randomly(grid, n_rows, n_cols):
 
 
 def get_squares(grid, n_rows, n_cols):
+    '''
+    This function creates a new list of lists, based on the numbers in the subgrid.
+    Returns: the list of lists form the square. 
+    '''
     squares = []
     for i in range(n_cols):
-        rows = (i * n_rows, (i + 1) * n_rows)
+        rows = (i*n_rows, (i+1)*n_rows)
         for j in range(n_rows):
-            cols = (j * n_cols, (j + 1) * n_cols)
+            cols = (j*n_cols, (j+1)*n_cols)
             square = []
             for k in range(rows[0], rows[1]):
                 line = grid[k][cols[0]:cols[1]]
-                square += line
+                square +=line
             squares.append(square)
-
-    return squares
-
-
-'''This function outputs the index of the subgrid of any coordinate so that you can use
-it alongside the get_squares function in the form:
-    get_squares(variables)[subgrid]
-    in order to output the list of numbers in the specific subgrid youre looking at'''
+    return(squares)
 
 
 def get_subgrid(row, col):
+    '''This function outputs the index of the subgrid of any coordinate so that you can use
+    it alongside the get_squares function in the form:
+        get_squares(variables)[subgrid]
+        in order to output the list of numbers in the specific subgrid youre looking at.
+    Args: Row - x coordinate 
+          Col - y coordinate
+    
+        '''
     # determine the row and column indices of the subgrid containing the coordinate
     row = row // 2
     col = col // 2
@@ -181,59 +223,54 @@ def get_subgrid(row, col):
     subgrid = row * 2 + col
     return subgrid
 
+def check_line(line,n):
+    for value in line:
+        if value == n:
+            return False 
+    return True
+def check_square(grid,x,y,value,n_rows,n_cols):
+    x = (x // n_rows)*n_rows
+    y = (y // n_cols)*n_cols
+    for i in range(n_rows):
+        for j in range(n_cols):
+            if grid[x+i][y+j] == value:
+                return False
+    return True
+
 
 # Defining a function that outputs the list of possible values left for any coordinat
-def possible_values(grid, row, col, n, n_rows, n_cols):
-    ''' 
-    This function returns a list of possible values any position can take 
-    Args: 
-        grid(list) = sudoku grid
-        row(int) = x coordinate
-        col(int) = y coordinate
-        n(int) = max value the number can be
-        n_rows(int) = width of subgrid
-        n_cols(int) = height of subgrid
+# def possible_values(grid, row, col, n, n_rows, n_cols):
+#     ''' 
+#     This function returns a list of possible values any position can take 
+#     Args: 
+#         grid(list) = sudoku grid
+#         row(int) = x coordinate
+#         col(int) = y coordinate
+#         n(int) = max value the number can be
+#         n_rows(int) = width of subgrid
+#         n_cols(int) = height of subgrid
 
-    Returns:
-        p_values(list) = list of possible values
+#     Returns:
+#         p_values(list) = list of possible values
 
-    '''
+#     '''
 
-    # Find values already present in the sudoku
-    row_values = grid[row]
-    col_values = [grid[i][col] for i in range(n)]
-    subgrid = get_subgrid(row, col)
-    square_values = get_squares(grid, n_rows, n_cols)[subgrid]
-    # All values 1 to n are possible before we check the rows, columns and squares
-    possible_values = set(range(1, n + 1))
-    # Remove values already present in the row, column, and subgrid
-    values_present = set(row_values + col_values + square_values)
-    p_values = list(possible_values - values_present)
-    return p_values
+#     # Find values already present in the sudoku
+#     row_values = grid[row]
+#     col_values = [grid[i][col] for i in range(n)]
 
 
-def find_lowest_possibilites(grid, n, n_rows, n_cols):
-    '''
-This function will return the coordinates of the positions with the lowest amount of possibilites
-    Args: 
-        grid(list) = sudoku grid
-        n(int) = max value the number can be
-        n_rows(int) = width of subgrid
-        n_cols(int) = height of subgrid
-    Returns:
-        An ordered list of possible values and their corresponding coordinates
-        ordered from lowest amount of possible values first
-        It outputs a list in the form of: [possible value(s)],coordiantes(x,y)
-'''
-    possible_list = []
-    for i in range(len(zeros_index(grid))):
-        row = zeros_index(grid)[i][0]
-        col = zeros_index(grid)[i][1]
-        # Finding the coordinates of the 0's
-        possible_list.append((possible_values(grid, row, col, n, n_rows, n_cols), row, col))
-        # Adding to the list the possible values, and the row and column theryre in
+#     # All values 1 to n are possible before we check the rows, columns and squares
+#     possible_values = range(1, n + 1)
+#     for i in possible_values:
+#         if check_square(grid,row,col,i,n_rows,n_cols):
+#             square_values=check_square(grid,row,col,i,n_rows,n_cols)
 
-    return sorted(possible_list)
+#     # Remove values already present in the row, column, and subgrid
+#     values_present = set(row_values + col_values + square_values)
+#     p_values = list(possible_values - values_present)
+#     return p_values
+
 
 
 # To complete the first assignment, please write the code for the following function
@@ -266,7 +303,8 @@ def check_solution(grid, n_rows, n_cols):
     return True
 
 
-def find_empty(grid):
+def find_empty(grid,n_rows,n_cols):
+    
     '''
     This function returns the index (i, j) to the first zero element in a sudoku grid
     If no such element is found, it returns None
@@ -274,15 +312,71 @@ def find_empty(grid):
     args: grid
     return: A tuple (i,j) where i and j are both integers, or None
     '''
+    empty_space=False
+    n=n_rows*n_cols
+    for i in range(n):
+        for j in range(n):
+            if grid[i][j]==0:
+                empty_space=(i,j)
+    return empty_space
 
-    for i in range(len(grid)):
-        row = grid[i]
-        for j in range(len(row)):
-            if grid[i][j] == 0:
-                return (i, j)
+def is_valid_value(grid, n_rows, n_cols, row, col, value,row_coord,col_coord):
+    valid_value = check_line(row,value) and check_line(col,value) and check_square(grid,row_coord,col_coord,value,n_rows,n_cols)
+    return valid_value
 
-    return None
+def recursive_solve(grid, n_rows, n_cols):
+    # Calculate the highest value that can appear in the grid
+    max_value = n_rows * n_cols
 
+    # Find the coordinates of an empty cell
+    empty_cell = find_empty(grid, n_rows, n_cols)
+
+    if empty_cell:
+        # Unpack the coordinates of the empty cell
+        row_coord = empty_cell[0]
+        col_coord = empty_cell[1]
+        row = grid[row_coord]
+        col = list(zip(*grid))[col_coord]
+        # Try to fill the empty cell with each value from 1 to max_value
+        for value in range(1, max_value + 1):
+            # Check that the value is not already in the same row, column, or square
+            if is_valid_value(grid, n_rows, n_cols, row, col, value,row_coord,col_coord):
+                # Fill the empty cell with the value
+                print(row,col,value)
+                grid[row_coord][col_coord] = value
+
+                # Recursively solve the updated grid
+                solution = recursive_solve(grid, n_rows, n_cols)
+
+                # If a solution was found, return it
+                if solution is not None:
+                    return solution
+
+                # If no solution was found, undo the previous change and continue with the next value
+                
+                grid[row_coord][col_coord] = 0
+
+        # If no valid value was found, backtrack to the previous cell
+        return None
+    else:
+        # If there are no more empty cells, the puzzle is solved
+        return grid
+
+def solve(grid, n_rows, n_cols):
+    '''
+    Solve function for Sudoku coursework.
+    Comment out one of the lines below to either use the random or recursive solver
+    '''
+    # return flag_hint(grid, n_rows, n_cols, global_N)
+    # return random_solve(grid, n_rows, n_cols)
+    return recursive_solve(grid, n_rows, n_cols)
+
+
+# if file:
+    # global_grid = input_file_to_grid('C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/med2.txt', 'C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/outputfile1.txt')
+    # print(global_grid)
+    #output_grid = recursive_solve(global_grid)
+    #output_grid_to_file('C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/outputfile1.txt', global_grid)
 
 def zeros_index(grid):
     '''This function outputs the coordinates of all the zeros in a grid.
@@ -299,16 +393,15 @@ def zeros_index(grid):
     return zeros_list
 
 
-def count_zeros(grid):
-    """Count the number of zeros in a list."""
-    count = 0
-    for row in grid:
-        for value in row:
-            if value == 0:
-                count += 1
-    return count
 
 def get_times(solver, grid, n_rows, n_cols):
+    '''
+    This function outputs the time taken for a specified solver to solve a specified grid
+    Args:
+        solver - the specific solver, such as recursive_solve
+    Returns: The time taken
+    '''
+
     start_time = time.time()
     solution = solver(grid, n_rows, n_cols)
     elapsed_time = time.time() - start_time
@@ -378,7 +471,7 @@ def old_recursive_solve(grid, n_rows, n_cols):
     # N is the maximum integer considered in this board
     n = n_rows * n_cols
     # Find an empty place in the grid
-    empty = find_empty(grid)
+    empty = find_empty(grid,n_rows,n_cols)
 
     # If there's no empty places left, check if we've found a solution
     if not empty:
@@ -397,7 +490,7 @@ def old_recursive_solve(grid, n_rows, n_cols):
         # Place the value into the grid
         grid[row][col] = i
         # Recursively solve the grid
-        ans = recursive_solve(grid, n_rows, n_cols)
+        ans = old_recursive_solve(grid, n_rows, n_cols)
         # If we've found a solution, return it
         if ans:
             return ans
@@ -410,56 +503,6 @@ def old_recursive_solve(grid, n_rows, n_cols):
     return None
 
 
-def recursive_solve(grid, n_rows, n_cols):
-    '''
-    This function uses recursion to exhaustively search all possible solutions to a grid
-    until the solution is found
-    args: grid, n_rows, n_cols
-    return: A solved grid (as a nested list), or None
-    '''
-    # The copy.deepcopy allows for nested lists to be fully copied.
-    current_grid = copy.deepcopy(grid)
-    # N is the maximum integer considered in this board
-    n = n_rows * n_cols
-    # Find an empty place in the grid
-    empty = find_empty(current_grid)
-    # If there's no empty places left, check if we've found a solution
-    if not empty:
-        # If the solution is correct, return it.
-        if check_solution(current_grid, n_rows, n_cols):
-            return current_grid
-        else:
-            # If the solution is incorrect, return None
-            return None
-    else:
-        row, col = empty
-        p_values = possible_values(current_grid, row, col, n, n_rows, n_cols)
-
-        # Going through only the possible values
-        for value in p_values:
-            # Place the value into the grid
-            current_grid[row][col] = value
-            # Recursively solve the grid
-            ans = recursive_solve(current_grid, n_rows, n_cols)
-            # If we've found a solution, return it
-            if ans:
-                return ans
-                # If we couldn't find a solution, that must mean this value is incorrect.
-            # Reset the grid for the next iteration of the loop
-            current_grid[row][col] = 0
-            # If we get here, we've tried all possible values. Return none to indicate the previous value is incorrect.
-        return None
-
-
-def solve(grid, n_rows, n_cols):
-    '''
-    Solve function for Sudoku coursework.
-    Comment out one of the lines below to either use the random or recursive solver
-    '''
-    # return flag_hint(grid, n_rows, n_cols, global_N)
-    # return random_solve(grid, n_rows, n_cols)
-    return recursive_solve(grid, n_rows, n_cols)
-
 
 def flag_profile(grid, n_rows, n_cols):
     '''
@@ -470,22 +513,21 @@ def flag_profile(grid, n_rows, n_cols):
     for solver in solvers:
         times.append(get_times(solver, grid, n_rows, n_cols))
 
-    # plot the results as a bar chart with a logarithmic scale
+    # Plotting the times on a Logarithmic scale
     x_labels = ['Random Solver', 'Old Recursive Solver', 'Recursive Solver']
-    x_pos = [i for i in range(len(x_labels))]
-    plt.bar(x_pos, times)
-    plt.xticks(x_pos, x_labels)
+    x_position = [i for i in range(len(x_labels))]
+    plt.bar(x_position, times)
+    plt.xticks(x_position, x_labels)
     plt.ylabel('Time (s)')
     plt.title('Solver Performance, Log scale')
 
-    # set y-axis scale to logarithmic
+    # Setting the y axis to logarithmic
     plt.yscale('log')
     plt.yticks([10 ** i for i in range(int(np.log10(min(times))), int(np.log10(max(times))) + 1)])
 
     plt.show()
 
     return
-
 
 def input_output(input_file, output_file):
     '''Function that relates to the -file flag
@@ -525,9 +567,10 @@ def input_output(input_file, output_file):
         t.write(str(output_grid))
 
 
-if file:
-    input_output('C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/grid1.txt',
-             'C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/outputfile1.txt')
+# if file:
+#     input_output('C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/grid1.txt',
+#              'C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/outputfile1.txt')
+
 
 
 # If the -explain flag is triggered, output the instructions for each grid
@@ -535,8 +578,6 @@ if explain:
     for i in range(len(grids)):
         print('For grid[{}]: {}'.format(i + 1, flag_explain(grids[i][0],
                                                             recursive_solve(grids[i][0], grids[i][1], grids[i][2]))))
-'''I need to look at the format of how they will be inputting the new grids, as this is geared towards the
-current grids on this file, not the new ones'''
 if profile:
     print(flag_profile(grid5, 2, 2), 'Profile is working')
 
@@ -572,12 +613,12 @@ if __name__ == "__main__":
     main()
 output_file = 'output.txt'
 
-output = main()
-print(output)
+# output = main()
+# print(output)
 # if file:
 #     with open(output_file, 'w') as f:
 #         mainman=[]
 #         mainman.append(main())
 #         for line in mainman:
-#             print(line,'HAHA')
+#             print(line,'HELLO')
 #             f.write(line)

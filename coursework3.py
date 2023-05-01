@@ -499,7 +499,6 @@ def flag_profile(grid, n_rows, n_cols):
     plt.xticks(x_position, x_labels)
     plt.ylabel('Time (s)')
     plt.title('Solver Performance, Log scale')
-    labels = ['Reached solution' if t and t <= 9 else 'No solution' if t is None else 'Over 9s' for t in times]
     # Setting the y axis to logarithmic
     plt.yscale('log')
     plt.yticks([10 ** i for i in range(int(np.log10(min(times))), int(np.log10(max(times))) + 1)])
@@ -521,7 +520,7 @@ def input_output(input_file, output_file):
         # read the file contents as a list of lines
         lines = f.readlines()
         first_line = lines[0].split(',')
-
+        #Finding n_rows and n_cols, based off the size of the inputted grid
         if len(first_line) == 4:
             input_n_rows = 2
             input_n_cols = 2
@@ -545,6 +544,7 @@ def input_output(input_file, output_file):
     output_grid = recursive_solve(input_grid, input_n_rows, input_n_cols)
     #  Write output grid in output file
     with open(output_file, 'w') as t:
+        t.write(flag_explain(input_grid, output_grid))
         t.write(str(output_grid))
 
 
@@ -592,14 +592,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-output_file = 'output.txt'
-
-# output = main()
-# print(output)
-# if file:
-#     with open(output_file, 'w') as f:
-#         mainman=[]
-#         mainman.append(main())
-#         for line in mainman:
-#             print(line,'HELLO')
-#             f.write(line)

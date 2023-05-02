@@ -253,27 +253,29 @@ def recursive_solve(grid, n_rows, n_cols):
     args: grid, n_rows, n_cols
     return: A solved grid (as a nested list), or None
     '''
+    
+    current_grid=copy.deepcopy(grid)
     # Calculate the highest value that can appear in the grid
     max_value = n_rows * n_cols
 
     # Find the coordinates of an empty cell
-    empty_cell = find_empty(grid, n_rows, n_cols)
+    empty_cell = find_empty(current_grid, n_rows, n_cols)
 
     if empty_cell:
         # Unpack the coordinates of the empty cell
         row_coord = empty_cell[0]
         col_coord = empty_cell[1]
-        row = grid[row_coord]
-        col = list(zip(*grid))[col_coord]
+        row = current_grid[row_coord]
+        col = list(zip(*current_grid))[col_coord]
         # Try to fill the empty cell with each value from 1 to max_value
         for value in range(1, max_value + 1):
             # Check that the value is not already in the same row, column, or square
-            if is_valid_value(grid, n_rows, n_cols, row, col, value,row_coord,col_coord):
+            if is_valid_value(current_grid, n_rows, n_cols, row, col, value,row_coord,col_coord):
                 # Fill the empty cell with the value
-                grid[row_coord][col_coord] = value
+                current_grid[row_coord][col_coord] = value
 
                 # Recursively solve the updated grid
-                solution = recursive_solve(grid, n_rows, n_cols)
+                solution = recursive_solve(current_grid, n_rows, n_cols)
 
                 # If a solution was found, return it
                 if solution is not None:
@@ -281,13 +283,13 @@ def recursive_solve(grid, n_rows, n_cols):
 
                 # If no solution was found, undo the previous change and continue with the next value
                 
-                grid[row_coord][col_coord] = 0
+                current_grid[row_coord][col_coord] = 0
 
         # If no valid value was found, backtrack to the previous cell
         return None
     else:
         # If there are no more empty cells, the puzzle is solved
-        return grid
+        return current_grid
 
 def solve(grid, n_rows, n_cols):
     '''
@@ -333,15 +335,17 @@ def flag_explain(grid, ans):
     '''
     # Output a list of where the 0s are
     zeros_coords = zeros_index(grid)
-    explanation = []
+    explanation=[]
     # For each zero coordinate find the corresponding number in the ans grid
     for coord in zeros_coords:
         row = coord[0]
         col = coord[1]
         answer = ans[row][col]
-        explanation = explanation.append(f'Put {answer} in location ({row}, {col})')
+        explanation.append(f'Put {answer} in location ({row}, {col})')
     return explanation
-    print(str(explanation))
+# print(grid4,recursive_solve(grid4, 2,2))
+print(flag_explain(grid4,recursive_solve(grid4, 2,2)))
+
 
 #def flag_explain_test(grid):
 #    '''Function that relates to the -explain flag.
@@ -601,5 +605,5 @@ def main():
     print("Test script complete, Total points: %d" % points)
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

@@ -95,50 +95,19 @@ if '-file' in sys.argv and '-explain' in sys.argv:
     file_explain = True
 
 # Global N will be used later, this represents the Number after the Hint flag
-if file_explain:
+if file or file_explain:
+    # Create an empty list to append the filenames to
     file_names = []
     for argument in sys.argv:
         if len(argument) == 1:
             global_N = argument
         else:
             global_N = 500000  # arbitrary large constant
-            if argument not in flags: #If the arg is longer than 1, it must be a filename
+            if argument not in flags: #  If the arg is longer than 1, it must be a filename
                 file_names.append(argument)
-                file_names=file_names[1:]
+        the_file_names = file_names[1:]
 
-# print('these are filenames', file_names)
-
-
-def output_grid_to_file(output_file, grid):
-    with open(output_file, 'w') as t:
-        t.write(str(grid))
-
-
-def input_file_to_grid(input_file, output_file):
-    # open the file for reading
-    # inputfile,outputfile=file_names=[1],file_names[2] #The first file_name is coursework3.py
-    with open(input_file, 'r') as f:
-        # read the file contents as a list of lines
-        lines = f.readlines()
-        #print('lines=', lines)
-        #input_row = len(lines[1])
-        #input_col = len(lines)
-        #print('input row=', input_row)
-        #print('input col=', input_col)
-    # create an empty list to hold the grid
-    grid = []
-    # loop through the lines and split them into individual elements
-    for line in lines:
-        row = line.strip().split(', ')
-        #print(row)
-        # convert each element to an integer and append the row to the grid
-        grid.append([int(float(x)) for x in row])
-        output_grid_to_file(output_file, grid)
-
-
-    # print the grid to verify the results
-    #return grid
-
+    print('these are filenames', the_file_names)
 
 def check_section(section, n):
     '''This functoin checks the specified section of the grid to see if its correct.
@@ -476,7 +445,7 @@ def old_recursive_solve(grid, n_rows, n_cols):
     # If we get here, we've tried all possible values. Return none to indicate the previous value is incorrect.
     return None
 
-profile=True
+# profile=True
 def flag_profile(grid, n_rows, n_cols):
     '''
     This function compares the different solvers' performance on different grids
@@ -509,7 +478,7 @@ def flag_profile(grid, n_rows, n_cols):
 
     return
 
-def input_output(input_file, output_file):
+def flag_input_output(input_file, output_file):
     '''Function that relates to the -file flag
         args: the input file, the output file
         Reads the unsolved suduko from the input file, solves it using the recursive solver function, writes the solved grid into the output file
@@ -519,8 +488,9 @@ def input_output(input_file, output_file):
     with open(input_file, 'r') as f:
         # read the file contents as a list of lines
         lines = f.readlines()
+        print('lines =', lines)
         first_line = lines[0].split(',')
-        #Finding n_rows and n_cols, based off the size of the inputted grid
+        #  Finding n_rows and n_cols, based off the size of the inputted grid
         if len(first_line) == 4:
             input_n_rows = 2
             input_n_cols = 2
@@ -539,20 +509,66 @@ def input_output(input_file, output_file):
 
         # Convert each element to an integer and append the row to the grid
         input_grid.append([int(float(x)) for x in row])
+    #print('input grid = ', input_grid)
 
     #  The recursively solved input grid is named 'output_grid'
     output_grid = recursive_solve(input_grid, input_n_rows, input_n_cols)
     #  Write output grid in output file
     with open(output_file, 'w') as t:
-        t.write(flag_explain(input_grid, output_grid))
+        #t.write(flag_explain(input_grid, output_grid))
         t.write(str(output_grid))
+    #print('output grid = ', output_grid)
 
 
-# if file:
-#     input_output('C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/grid1.txt',
-#              'C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/outputfile1.txt')
+    # print the grid to verify the results
+    #return grid
+
+def flag_file_explain(input_file, output_file):
+    # open the file for reading
+    with open(input_file, 'r') as f:
+        # read the file contents as a list of lines
+        lines = f.readlines()
+        print('lines =', lines)
+        first_line = lines[0].split(',')
+        #  Finding n_rows and n_cols, based off the size of the inputted grid
+        if len(first_line) == 4:
+            input_n_rows = 2
+            input_n_cols = 2
+        if len(first_line) == 9:
+            input_n_rows = 3
+            input_n_cols = 3
+        if len(first_line) == 6:
+            input_n_rows = 2
+            input_n_cols = 3
+
+    # Create an empty list to hold the grid called 'input_grid'
+    input_grid = []
+    # Loop through the lines and split them into individual elements
+    for line in lines:
+        row = line.strip().split(', ')
+
+        # Convert each element to an integer and append the row to the grid
+        input_grid.append([int(float(x)) for x in row])
+    #print('input grid = ', input_grid)
+
+    #  The recursively solved input grid is named 'output_grid'
+    output_grid = recursive_solve(input_grid, input_n_rows, input_n_cols)
+    #  Write output grid in output file
+    explanation = flag_explain(input_grid, output_grid)
+    print(explanation)
+    with open(output_file, 'w') as t:
+        #t.write(flag_explain(input_grid, output_grid))
+        t.write(str(output_grid), explanation)
+    #print('output grid = ', output_grid)
 
 
+    # print the grid to verify the results
+    #return grid
+
+
+if file:
+        flag_input_output(the_file_names[0], the_file_names[1])
+        #print(the_file_names
 
 # If the -explain flag is triggered, output the instructions for each grid
 if explain:

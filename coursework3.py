@@ -343,9 +343,6 @@ def flag_explain(grid, ans):
         answer = ans[row][col]
         explanation.append(f'Put {answer} in location ({row}, {col})')
     return explanation
-# print(grid4,recursive_solve(grid4, 2,2))
-print(flag_explain(grid4,recursive_solve(grid4, 2,2)))
-
 
 #def flag_explain_test(grid):
 #    '''Function that relates to the -explain flag.
@@ -409,7 +406,7 @@ def flag_hint(grid, n_rows, n_cols, N):
         return answer, explained_list
     return answer
 
-
+explain=True
 def old_recursive_solve(grid, n_rows, n_cols):
     '''
 	This the unimproved function uses recursion to exhaustively search all possible solutions to a grid
@@ -588,7 +585,7 @@ def main():
         if file:
             flag_input_output(the_file_names[0], the_file_names[1])
         if profile:
-            print(flag_profile(grid5, 2, 2), 'Profile is working')
+            print('Profile is working')
         if explain:
             for i in range(len(grids)):
                 print('For grid[{}]: {}'.format(i + 1, flag_explain(grids[i][0],recursive_solve(grids[i][0], grids[i][1], grids[i][2]))))
@@ -605,5 +602,5 @@ def main():
     print("Test script complete, Total points: %d" % points)
 
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

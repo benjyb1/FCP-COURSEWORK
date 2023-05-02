@@ -65,19 +65,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-print(sys.argv)  # Prints the command line arguments as items in a list ['filename.py', 'flag']
 
-flags = ['-explain', '-profile', '-hint', '-hint_explain', '-file']
+flags = ['-explain', '-profile', '-hint', '-file']
 hint = False
 explain = False
 hint_explain = False
 profile = False
 file = False
 file_explain = False
+
 '''
-For the comment line arguments, variables are set as False by default, and if they are in the
+For the command line arguments, variables are set as False by default, and if they are in the
 sys.argv, they're reset as True
 '''
+
 if '-explain' in sys.argv and not '-hint' in sys.argv:
     explain = True
 if '-hint' in sys.argv and not '-explain' in sys.argv:
@@ -95,25 +96,12 @@ if '-file' in sys.argv and '-explain' in sys.argv:
     file_explain = True
 
 # Global N will be used later, this represents the Number after the Hint flag
-if file or file_explain:
-    # Create an empty list to append the filenames to
-    file_names = []
-    for argument in sys.argv:
-        if len(argument) == 1:
-            global_N = argument
-        else:
-            global_N = 500000  # arbitrary large constant
-            if argument not in flags: #  If the arg is longer than 1, it must be a filename
-                file_names.append(argument)
-        the_file_names = file_names[1:]
-
-    print('these are filenames', the_file_names)
 
 def check_section(section, n):
-    '''This functoin checks the specified section of the grid to see if its correct.
+
+    '''This function checks the specified section of the grid to see if it's correct.
     Args: Section - Row/Column/Square of the grid
-          n= Length of section
-    
+          n = Length of section
     '''
 
     if len(set(section)) == len(section) and sum(section) == sum([i for i in range(n + 1)]):
@@ -124,9 +112,8 @@ def check_section(section, n):
 def random_solve(grid, n_rows, n_cols, max_tries=50000):
     '''
 	This function uses random trial and error to solve a Sudoku grid
-
-	args: grid, n_rows, n_cols, max_tries
-	return: A solved grid (as a nested list), or the original grid if no solution is found
+	Args: grid, n_rows, n_cols, max_tries
+	Return: A solved grid (as a nested list), or the original grid if no solution is found
 	'''
 
     for i in range(max_tries):
@@ -140,9 +127,8 @@ def random_solve(grid, n_rows, n_cols, max_tries=50000):
 def fill_board_randomly(grid, n_rows, n_cols):
     '''
 	This function will fill an unsolved Sudoku grid with random numbers
-
-	args: grid, n_rows, n_cols
-	return: A grid with all empty values filled in
+	Args: grid, n_rows, n_cols
+	Return: A grid with all empty values filled in
 	'''
     n = n_rows * n_cols
     # Make a copy of the original grid
@@ -314,13 +300,6 @@ def solve(grid, n_rows, n_cols):
     # return fill_board_randomly(grid, n_rows, n_cols)
     return recursive_solve(grid, n_rows, n_cols)
 
-
-# if file:
-    # global_grid = input_file_to_grid('C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/med2.txt', 'C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/outputfile1.txt')
-    # print(global_grid)
-    #output_grid = recursive_solve(global_grid)
-    #output_grid_to_file('C:/Users/chiar/onedrive/documents/github/FCP-COURSEWORK/outputfile1.txt', global_grid)
-
 def zeros_index(grid):
     '''This function outputs the coordinates of all the zeros in a grid.
     args: grid, the number of rows, number of columns
@@ -332,16 +311,12 @@ def zeros_index(grid):
             # The enumerate function pairs the entry with an ascending number
             if col == 0:
                 zeros_list.append((row_index, col_index))
-
     return zeros_list
-
-
 
 def get_times(solver, grid, n_rows, n_cols):
     '''
     This function outputs the time taken for a specified solver to solve a specified grid
-    Args:
-        solver - the specific solver, such as recursive_solve
+    Args: solver - the specific solver, such as recursive_solve
     Returns: The time taken
     '''
 
@@ -353,19 +328,49 @@ def get_times(solver, grid, n_rows, n_cols):
 
 def flag_explain(grid, ans):
     '''Function that relates to the -explain flag.
-    args: the inital grid, the solved grid
+    Args: the inital grid, the solved grid
     return: An explanation for what number to replace each 0 with
     '''
     # Output a list of where the 0s are
     zeros_coords = zeros_index(grid)
-    explained = []
+    explanation = []
     # For each zero coordinate find the corresponding number in the ans grid
     for coord in zeros_coords:
         row = coord[0]
         col = coord[1]
         answer = ans[row][col]
-        explained.append(f'Put {answer} in location ({row}, {col})')
-    return explained
+        explanation = explanation.append(f'Put {answer} in location ({row}, {col})')
+    return explanation
+    print(str(explanation))
+
+#def flag_explain_test(grid):
+#    '''Function that relates to the -explain flag.
+#    Args: the inital grid, the solved grid
+#    return: An explanation for what number to replace each 0 with
+#    '''
+#    for row in grid:
+#        if len(row) == 4:
+#            n_rows = 2
+#            n_cols = 2
+#        if len(row) == 9:
+#            n_rows = 3
+#            n_cols = 3
+#        if len(row) == 6:
+#            n_rows = 2
+#            n_cols = 3
+    # Output a list of where the 0s are
+  #  ans = recursive_solve(grid, n_rows, n_cols)
+  #  zeros_coords = zeros_index(grid)
+  #  explanation = []
+  #  # For each zero coordinate find the corresponding number in the ans grid
+  #  for coord in zeros_coords:
+  #      row = coord[0]
+  #      col = coord[1]
+  #      answer = ans[row][col]
+  #      explanation = explanation.append(f'Put {answer} in location ({row}, {col})')
+   # return explanation
+    #print(str(explanation))
+
 
 
 def flag_hint(grid, n_rows, n_cols, N):
@@ -481,7 +486,7 @@ def flag_profile(grid, n_rows, n_cols):
 def flag_input_output(input_file, output_file):
     '''Function that relates to the -file flag
         args: the input file, the output file
-        Reads the unsolved suduko from the input file, solves it using the recursive solver function, writes the solved grid into the output file
+        Reads the unsolved sudoku from the input file, solves it using the recursive solver function, writes the solved grid into the output file
         '''
     # input file,output file = file_names[1],file_names[2] (The first file_name is coursework3.py)
     # open the file for reading
@@ -515,22 +520,15 @@ def flag_input_output(input_file, output_file):
     output_grid = recursive_solve(input_grid, input_n_rows, input_n_cols)
     #  Write output grid in output file
     with open(output_file, 'w') as t:
-        #t.write(flag_explain(input_grid, output_grid))
         t.write(str(output_grid))
-    #print('output grid = ', output_grid)
-
-
-    # print the grid to verify the results
-    #return grid
 
 def flag_file_explain(input_file, output_file):
-    # open the file for reading
+    flag_input_output(the_file_names[0], the_file_names[1])
     with open(input_file, 'r') as f:
         # read the file contents as a list of lines
         lines = f.readlines()
         print('lines =', lines)
         first_line = lines[0].split(',')
-        #  Finding n_rows and n_cols, based off the size of the inputted grid
         if len(first_line) == 4:
             input_n_rows = 2
             input_n_cols = 2
@@ -540,8 +538,6 @@ def flag_file_explain(input_file, output_file):
         if len(first_line) == 6:
             input_n_rows = 2
             input_n_cols = 3
-
-    # Create an empty list to hold the grid called 'input_grid'
     input_grid = []
     # Loop through the lines and split them into individual elements
     for line in lines:
@@ -549,34 +545,16 @@ def flag_file_explain(input_file, output_file):
 
         # Convert each element to an integer and append the row to the grid
         input_grid.append([int(float(x)) for x in row])
-    #print('input grid = ', input_grid)
+    # print('input grid = ', input_grid)
 
     #  The recursively solved input grid is named 'output_grid'
     output_grid = recursive_solve(input_grid, input_n_rows, input_n_cols)
     #  Write output grid in output file
-    explanation = flag_explain(input_grid, output_grid)
-    print(explanation)
     with open(output_file, 'w') as t:
-        #t.write(flag_explain(input_grid, output_grid))
-        t.write(str(output_grid), explanation)
-    #print('output grid = ', output_grid)
-
-
-    # print the grid to verify the results
-    #return grid
-
-
-if file:
-        flag_input_output(the_file_names[0], the_file_names[1])
-        #print(the_file_names
+        t.write(str(output_grid))
+        t.write(str(flag_explain(input_grid, output_grid)))
 
 # If the -explain flag is triggered, output the instructions for each grid
-if explain:
-    for i in range(len(grids)):
-        print('For grid[{}]: {}'.format(i + 1, flag_explain(grids[i][0],
-                                                            recursive_solve(grids[i][0], grids[i][1], grids[i][2]))))
-if profile:
-    print(flag_profile(grid5, 2, 2), 'Profile is working')
 
 
 def main():
@@ -590,9 +568,26 @@ def main():
         solution = solve(grid, n_rows, n_cols)
         elapsed_time = time.time() - start_time
         print("Solved in: %f seconds" % elapsed_time)
-
+        if file or file_explain:
+            # Create an empty list to append the filenames to
+            file_names = []
+            for argument in sys.argv:
+                if len(argument) == 1:
+                    global_N = argument
+                else:
+                    global_N = 500000  # arbitrary large constant
+                    if argument not in flags:  # If the arg is longer than 1, it must be a filename
+                        file_names.append(argument)
+                the_file_names = file_names[1:]
         if hint or hint_explain:
             print(flag_hint(grid, n_rows, n_cols, 2))
+        if file:
+            flag_input_output(the_file_names[0], the_file_names[1])
+        if profile:
+            print(flag_profile(grid5, 2, 2), 'Profile is working')
+        if explain:
+            for i in range(len(grids)):
+                print('For grid[{}]: {}'.format(i + 1, flag_explain(grids[i][0],recursive_solve(grids[i][0], grids[i][1], grids[i][2]))))
         else:
             print(solution)
         if check_solution(solution, n_rows, n_cols):

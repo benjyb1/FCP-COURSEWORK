@@ -379,7 +379,7 @@ def flag_hint(grid, n_rows, n_cols, N):
     Also if the hint_explain boul gets called then the function will output
     N lines of the explain function
     
-    args: grid,n_rows,n_cols
+    args: grid, n_rows, n_cols
     N (int)= The global N, the number after the hint flag
     returns: The partially filled answer, and if hint_explain is called, then also the 
     partially included explanation

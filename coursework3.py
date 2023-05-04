@@ -54,7 +54,7 @@ grid7 = [[0, 2, 0, 0, 0, 0, 0, 1, 0],
          [0, 0, 0, 0, 0, 0, 0, 0, 0],
          [0, 3, 1, 0, 0, 8, 0, 5, 7]]
 
-grids = [(grid1, 2, 2), (grid2, 2, 2), (grid3, 2, 2), (grid4, 2, 2), (grid5, 2, 2),(grid6,2,3), (grid7,3,3)]
+grids = [(grid1, 2, 2), (grid2, 2, 2), (grid3, 2, 2), (grid4, 2, 2), (grid5, 2, 2), (grid6, 2, 3), (grid7, 3, 3)]
 '''
 ===================================
 DO NOT CHANGE CODE ABOVE THIS LINE
@@ -78,6 +78,7 @@ file_explain = False
 For the command line arguments, variables are set as False by default, and if they are in the
 sys.argv, they're reset as True
 '''
+
 for argument in sys.argv:
     if len(argument) == 1:
         global_N = int(argument)
@@ -258,7 +259,6 @@ def recursive_solve(grid, n_rows, n_cols):
     args: grid, n_rows, n_cols
     return: A solved grid (as a nested list), or None
     '''
-    
     current_grid=copy.deepcopy(grid)
     # Calculate the highest value that can appear in the grid
     max_value = n_rows * n_cols
@@ -295,7 +295,8 @@ def recursive_solve(grid, n_rows, n_cols):
     else:
         # If there are no more empty cells, the puzzle is solved
         return current_grid
-
+grids_copies = copy.deepcopy(grids)
+print('copies', grids_copies)
 def solve(grid, n_rows, n_cols):
     '''
     Solve function for Sudoku coursework.

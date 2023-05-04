@@ -78,11 +78,13 @@ file_explain = False
 For the command line arguments, variables are set as False by default, and if they are in the
 sys.argv, they're reset as True
 '''
-for argument in sys.argv:
-    if len(argument) == 1:
-        global_N = int(argument)
-    else:
-        global_N = 500000  # arbitrary large constant
+
+
+global_N = [int(x) for x in sys.argv if (isinstance(x, str) and x.isdigit())]
+if global_N:
+    global_N = global_N[0]
+else:
+    global_N = 500000  # default value
 
 if '-explain' in sys.argv and not '-hint' in sys.argv:
     explain = True
@@ -97,8 +99,6 @@ if '-profile' in sys.argv:  # The profile flag overrides all other flags as they
     hint_explain = False
 if '-file' in sys.argv:
     file = True
-if '-file' in sys.argv and '-explain' in sys.argv:
-    file_explain = True
 
 # Global N will be used later, this represents the Number after the Hint flag
 
@@ -348,7 +348,6 @@ def flag_explain(grid, ans):
         answer = ans[row][col]
         explanation.append(f'Put {answer} in location ({row}, {col})')
     return explanation
-hint=True
 
 def flag_hint(grid, n_rows, n_cols, N):
     '''Function that puts back a certain number of zeros into the finished grid,
@@ -361,6 +360,7 @@ def flag_hint(grid, n_rows, n_cols, N):
     returns: The partially filled answer, and if hint_explain is called, then also the 
     partially included explanation
     '''
+    N=int(N)
     # getting the coordinates of the zeros
     zeros = zeros_index(grid)
     # Only keeping N elements from the list
@@ -380,52 +380,6 @@ def flag_hint(grid, n_rows, n_cols, N):
         # if no hint_explain, just return normal partially filled grid
         return answer, explained_list
     return answer
-
-
-def old_recursive_solve(grid, n_rows, n_cols):
-    '''
-	This the unimproved function uses recursion to exhaustively search all possible solutions to a grid
-	until the solution is found
-    This function is purely here for the -profile flag
-
-	args: grid, n_rows, n_cols
-	return: A solved grid (as a nested list), or None
-	'''
-
-    # N is the maximum integer considered in this board
-    n = n_rows * n_cols
-    # Find an empty place in the grid
-    empty = find_empty(grid,n_rows,n_cols)
-
-    # If there's no empty places left, check if we've found a solution
-    if not empty:
-        # If the solution is correct, return it.
-        if check_solution(grid, n_rows, n_cols):
-            return grid
-        else:
-            # If the solution is incorrect, return None
-            return None
-    else:
-        row, col = empty
-
-    # Loop through possible values
-    for i in range(1, n + 1):
-
-        # Place the value into the grid
-        grid[row][col] = i
-        # Recursively solve the grid
-        ans = old_recursive_solve(grid, n_rows, n_cols)
-
-        # If we've found a solution, return it
-        if ans:
-            return ans
-
-        # If we couldn't find a solution, that must mean this value is incorrect.
-        # Reset the grid for the next iteration of the loop
-        grid[row][col] = 0
-
-    # If we get here, we've tried all possible values. Return none to indicate the previous value is incorrect.
-    return None
 
 
 def flag_profile(grid, n_rows, n_cols):
@@ -468,7 +422,7 @@ def flag_input_to_grid(input_file):
     with open(input_file, 'r') as f:
         # read the file contents as a list of lines
         lines = f.readlines()
-        print('lines =', lines)
+        # print('lines =', lines)
         first_line = lines[0].split(',')
         #  Finding n_rows and n_cols, based off the size of the inputted grid
         if len(first_line) == 4:
@@ -502,16 +456,17 @@ def flag_input_output(input_file, output_file):
     with open(output_file, 'w') as t:
         if hint or hint_explain:
             t.write(str(flag_hint(input_grid, n_rows, n_cols, global_N)))
+
         else:
             t.write(str(output_grid))
             t.write(str(flag_explain(input_grid, output_grid)))
 
 # If the -explain flag is triggered, output the instructions for each grid
-if file or file_explain:
+if file:
     # Create an empty list to append the filenames to
     file_names = []
     for argument in sys.argv:
-        if len(argument) != 1:
+        if not argument.isdigit():
             if argument not in flags:  # If the arg is longer than 1, it must be a filename
                 file_names.append(argument)
     the_file_names = file_names[1:]

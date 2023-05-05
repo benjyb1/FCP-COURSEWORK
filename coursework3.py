@@ -441,6 +441,10 @@ def old_recursive_solve(grid, n_rows, n_cols):
 def flag_profile(grid, n_rows, n_cols):
     """
     This function compares the different solvers' performance on different grids
+    Returns: A plot for each grid the different solvers have solved
+    It will return a red bar and give it a arbitrary large time if the solver didn't reach an answer
+    It will return a Blue bar if the solver was succesful, with the times being on a logarithmic scale as the times are often
+    magnitudes different.
     """
     times = []
     solvers = [fill_board_randomly, random_solve, recursive_solve]
@@ -474,6 +478,9 @@ def flag_profile(grid, n_rows, n_cols):
 def flag_input_to_grid(input_file):
     """
     Function that takes the input file and outputs the parsed input grid
+    Returns: 
+        The parsed input grid taken from the input file
+        The input grid's row and column length
     """
     with open(input_file, 'r') as f:
         # Read the file contents as a list of lines
@@ -504,6 +511,9 @@ def flag_input_to_grid(input_file):
 def flag_input_output(input_file, output_file):
     """
     Function that uses the flag_input_to_grid function as an input and outputs the solved grid
+    Takes the input grid and prints the output grid with the specified flags
+    Returns:
+        Writes into a specified file the solved grid, along with the outputs from specified flags.
     """
     input_grid, n_rows, n_cols = flag_input_to_grid(input_file)
     output_grid = recursive_solve(input_grid, n_rows, n_cols)
@@ -513,10 +523,11 @@ def flag_input_output(input_file, output_file):
             t.write(str(flag_hint(input_grid, n_rows, n_cols, global_N)))
         else:
             t.write(str(output_grid))
-            t.write(str(flag_explain(input_grid, output_grid)))
+            if explain:
+                t.write(str(flag_explain(input_grid, output_grid)))
 
 
-# If the -explain flag is triggered, output the instructions for each grid
+# Getting the file names from the command line
 if file or file_explain:
     # Create an empty list to append the filenames to
     file_names = []
@@ -529,6 +540,120 @@ if file:
     flag_input_output(the_file_names[0], the_file_names[1])
     global_file_grid = flag_input_to_grid(the_file_names[0])
 
+
+'''
+WAVEFRONT PROPOGATION
+The next section is Task 3, the wavefront propogation.
+It works less efficiently than the improved recursive solver, so the main function will remain using the recursive solver
+'''
+def print_grid_wavefront(grid):
+    #Prints the Sudoku grid in a human-readable format.
+    for i in range(len(grid)):
+        if i % 2 == 0 and i != 0:
+            print("- - - - - - - - - - - - - - - ")
+        for j in range(len(grid[0])):
+            if j % 2 == 0 and j != 0:
+                print(" | ", end="")
+            if isinstance(grid[i][j], list):
+                print(".", end=" ")
+            else:
+                print(str(grid[i][j]), end=" ")
+        print()
+
+def get_row_wavefront(grid, row_index):
+    #Returns the values in the given row of the grid.
+    return [grid[row_index][i] for i in range(len(grid[0]))]
+
+def get_column_wavefront(grid, col_index):
+    #Returns the values in the given column of the grid.
+    return [grid[i][col_index] for i in range(len(grid))]
+
+def get_square_wavefront(grid, row_index, col_index):
+    #Returns the values in the square containing the given row and column of the grid.
+    square_size = int(len(grid)**0.5)
+    row_start = (row_index // square_size) * square_size
+    col_start = (col_index // square_size) * square_size
+    square = []
+    for i in range(row_start, row_start + square_size):
+        for j in range(col_start, col_start + square_size):
+            square.append(grid[i][j])
+    return square
+
+def get_possibilities_wavefront(grid, row_index, col_index):
+    #Returns a list of the possible values for the given empty location in the grid.
+    row_values = get_row_wavefront(grid, row_index)
+    col_values = get_column_wavefront(grid, col_index)
+    square_values = get_square_wavefront(grid, row_index, col_index)
+    all_values = list(row_values + col_values + square_values)
+    return [i for i in range(1, len(grid)+1) if i not in all_values]
+
+def find_next_empty_wavefront(grid):
+    #Returns the row and column indices of the next empty location in the grid, or None if the grid is full.
+    for i in range(len(grid)):
+        for j in range(len(grid[0])):
+            if isinstance(grid[i][j], list):
+                return (i, j)
+    return None
+
+def solve_sudoku_wavefront(grid):
+    #Solves the Sudoku grid using the wavefront propagation method.
+    while True:
+        next_empty = find_next_empty_wavefront(grid)
+        if not next_empty:
+            return grid
+        row_index, col_index = next_empty
+        possibilities = get_possibilities_wavefront(grid, row_index, col_index)
+        if len(possibilities) == 0:
+            return None
+        elif len(possibilities) == 1:
+            grid[row_index][col_index] = possibilities[0]
+        else:
+            grid[row_index][col_index] = possibilities
+    return grid
+
+def is_valid_wavefront(grid):
+    #will check whether the given grid is a valid solution to a Sudoku grid.
+    for i in range(len(grid)):
+        for j in range(len(grid[0])):
+            if isinstance(grid[i][j], list):
+                return False
+            row_values = get_row_wavefront(grid, i)
+            col_values = get_column_wavefront(grid, j)
+            square_values = get_square_wavefront(grid, i, j)
+            all_values = set(row_values + col_values + square_values)
+            if len(all_values) != len(grid):
+                return
+
+def test_solver(grid):
+    #returns the time taken in seconds.
+    start_time = time.time()
+    solution = solve_sudoku_wavefront(grid)
+    end_time = time.time()
+    if solution is None:
+        print("Unable to solve the Sudoku grid.")
+    elif is_valid_wavefront(solution):
+        print("Sudoku grid solved in {:.4f} seconds.".format(end_time - start_time))
+        print_grid_wavefront(solution)
+    else:
+        print("Solution to the Sudoku grid is invalid.")
+    return end_time - start_time
+grid = [[1, [3], 4, 2],
+    [[3, 4], 2, 1, [3]],
+    [2, 1, [3], 4],
+    [[3], 4, 2, 1]]
+
+
+print("Original puzzle:")
+print_grid_wavefront(grid)
+solved_grid = solve_sudoku_wavefront(grid)
+print("Solved puzzle:")
+print_grid_wavefront(solved_grid)
+
+
+
+'''
+END OF TASK 3 WAVEFRONT PROPOGATION
+'''
 
 def main():
     points = 0

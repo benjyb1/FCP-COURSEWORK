@@ -10,7 +10,7 @@ import random
 import time
 
 def print_grid(grid):
-    """Prints the Sudoku grid in a human-readable format."""
+    #Prints the Sudoku grid in a human-readable format.
     for i in range(len(grid)):
         if i % 2 == 0 and i != 0:
             print("- - - - - - - - - - - - - - - ")
@@ -24,15 +24,15 @@ def print_grid(grid):
         print()
 
 def get_row(grid, row_index):
-    """Returns the values in the given row of the grid."""
+    #Returns the values in the given row of the grid.
     return [grid[row_index][i] for i in range(len(grid[0]))]
 
 def get_column(grid, col_index):
-    """Returns the values in the given column of the grid."""
+    #Returns the values in the given column of the grid.
     return [grid[i][col_index] for i in range(len(grid))]
 
 def get_square(grid, row_index, col_index):
-    """Returns the values in the square containing the given row and column of the grid."""
+    #Returns the values in the square containing the given row and column of the grid.
     square_size = int(len(grid)**0.5)
     row_start = (row_index // square_size) * square_size
     col_start = (col_index // square_size) * square_size
@@ -43,7 +43,7 @@ def get_square(grid, row_index, col_index):
     return square
 
 def get_possibilities(grid, row_index, col_index):
-    """Returns a list of the possible values for the given empty location in the grid."""
+    #Returns a list of the possible values for the given empty location in the grid.
     row_values = get_row(grid, row_index)
     col_values = get_column(grid, col_index)
     square_values = get_square(grid, row_index, col_index)
@@ -51,7 +51,7 @@ def get_possibilities(grid, row_index, col_index):
     return [i for i in range(1, len(grid)+1) if i not in all_values]
 
 def find_next_empty(grid):
-    """Returns the row and column indices of the next empty location in the grid, or None if the grid is full."""
+    #Returns the row and column indices of the next empty location in the grid, or None if the grid is full.
     for i in range(len(grid)):
         for j in range(len(grid[0])):
             if isinstance(grid[i][j], list):
@@ -59,7 +59,7 @@ def find_next_empty(grid):
     return None
 
 def solve_sudoku(grid):
-    """Solves the Sudoku grid using the wavefront propagation method."""
+    #Solves the Sudoku grid using the wavefront propagation method.
     while True:
         next_empty = find_next_empty(grid)
         if not next_empty:
@@ -75,7 +75,7 @@ def solve_sudoku(grid):
     return grid
 
 def is_valid(grid):
-    """Checks whether the given grid is a valid solution to a Sudoku puzzle."""
+    #will check whether the given grid is a valid solution to a Sudoku grid.
     for i in range(len(grid)):
         for j in range(len(grid[0])):
             if isinstance(grid[i][j], list):
@@ -88,7 +88,7 @@ def is_valid(grid):
                 return
 
 def test_solver(grid):
-    """Solves the given Sudoku grid using the wavefront propagation method and returns the time taken in seconds."""
+    #returns the time taken in seconds.
     start_time = time.time()
     solution = solve_sudoku(grid)
     end_time = time.time()

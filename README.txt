@@ -10,6 +10,6 @@ Enter the -hint N flag (where N is the number of squares you want solved), and t
 
 Enter the -explain flag in terminal to print the answer of a grid, as well as a list of instructions for solving the puzzle. If you enter the -explain flag alongside the -file flag, the completed grid from the input file will be printed in the output file, along with the list of instructions for solving the puzzle
 
-For the wavefront propagation solver, you will need to open the coursework.py file and put in the grid you want solved and input the possible values into the empty locations in the unsolved grid.
+For the wavefront propagation solver, you will need to open the coursework.py file, put in the grid you want solved and input the possible values into the empty locations in the unsolved grid.
 
 NOTE: This program appears to only run succesfully through terminal on MAC. The cause of this issue is unknown.
